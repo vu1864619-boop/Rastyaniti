@@ -734,6 +734,64 @@
             <div id="crisis-choices-container" style="display: flex; flex-direction: column; gap: 10px;">
                 <!-- Choices injected -->
             </div>
+        <!-- 11. Multiplayer Party & Friends Screen -->
+        <div class="screen" id="screen-multiplayer">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div>
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--saffron);" id="txt-mp-title">मल्टीप्लेयर पार्टी मुख्यालय</h2>
+                    <span style="font-size: 11px; color: var(--text-muted);">ऑनलाइन मित्र व विकेंद्रीकृत राज्य प्रचार</span>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid var(--gold); color: var(--gold); padding: 4px 8px; border-radius: 8px; font-weight: 700; font-size: 11px;">
+                    कोड: <span id="mp-party-code">JSP-9821</span>
+                </div>
+            </div>
+
+            <!-- Party Invite & Share -->
+            <div class="card" style="background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));">
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <input type="text" id="inp-friend-invite" class="form-input" placeholder="मित्र का Username / Player ID" style="padding: 8px 10px; font-size: 13px;">
+                    <button class="btn-primary" onclick="inviteFriendOnline()" style="width: auto; padding: 8px 14px; font-size: 13px; white-space: nowrap;">
+                        <i class="fa-solid fa-user-plus"></i> जोड़ें
+                    </button>
+                </div>
+                <p style="font-size: 11px; color: var(--text-muted);">
+                    मित्र के जुड़ते ही वह आपकी पार्टी का सक्रिय ऑनलाइन सदस्य बन जाएगा।
+                </p>
+            </div>
+
+            <!-- State Delegation & Live Stats -->
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">राज्यों का लाइव प्रभार व समर्थन</h3>
+            <div class="stat-grid" id="mp-state-support-grid">
+                <div class="stat-box">
+                    <span class="stat-label">उत्तर प्रदेश (अमन)</span>
+                    <span class="stat-val" style="color: var(--saffron);" id="val-st-up">58%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">बिहार (रोहित वर्मा)</span>
+                    <span class="stat-val" style="color: var(--green);" id="val-st-bihar">54%</span>
+                </div>
+            </div>
+
+            <!-- Party Members Roster -->
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">पार्टी पदाधिकारी व सदस्य सूची</h3>
+            <div id="mp-members-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+                <!-- Members injected dynamically -->
+            </div>
+
+            <!-- Joint Activity Operation -->
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">संयुक्त चुनावी अभियान</h3>
+            <div class="card" style="border-left: 3px solid var(--saffron);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 14px; font-weight: 700;">📢 बिहार राज्य महा-रैली</span>
+                    <span style="font-size: 12px; color: var(--gold); font-weight: 700;">₹50k | -15⚡</span>
+                </div>
+                <p style="font-size: 11px; color: var(--text-muted); margin: 6px 0;">
+                    बिहार प्रदेश अध्यक्ष (रोहित) को रैली का आदेश दें। इससे बिहार समर्थन +7% और पूरी पार्टी का कोष बढ़ेगा।
+                </p>
+                <button class="btn-primary" onclick="launchJointStateCampaign('बिहार')" style="padding: 8px 12px; font-size: 13px;">
+                    <i class="fa-solid fa-paper-plane"></i> अभियान आदेश जारी करें (Deploy Rally)
+                </button>
+            </div>
         </div>
 
     </div>
@@ -751,6 +809,10 @@
         <div class="nav-item" onclick="switchNav('screen-campaign')" id="nav-campaign">
             <i class="fa-solid fa-bullhorn"></i>
             <span id="lbl-nav-campaign">प्रचार</span>
+        </div>
+        <div class="nav-item" onclick="switchNav('screen-multiplayer')" id="nav-multiplayer">
+            <i class="fa-solid fa-users"></i>
+            <span id="lbl-nav-multiplayer">मल्टीप्लेयर</span>
         </div>
         <div class="nav-item" onclick="switchNav('screen-parliament')" id="nav-parliament">
             <i class="fa-solid fa-landmark"></i>
@@ -885,6 +947,7 @@
         renderCampaigns();
         renderQuiz();
         renderMinistries();
+        renderMultiplayerRoster();
         initMapCanvas();
         showScreen('screen-home');
     }
@@ -899,6 +962,7 @@
             'screen-home': 'nav-home',
             'screen-map': 'nav-map',
             'screen-campaign': 'nav-campaign',
+            'screen-multiplayer': 'nav-multiplayer',
             'screen-parliament': 'nav-parliament',
             'screen-pm': 'nav-pm',
             'screen-quiz': 'nav-quiz'
@@ -907,6 +971,7 @@
             const navEl = document.getElementById(navMap[id]);
             if (navEl) navEl.classList.add('active');
         }
+        if (id === 'screen-multiplayer') renderMultiplayerRoster();
     }
 
     function switchNav(id) {
@@ -1069,6 +1134,111 @@
         renderCampaigns();
         renderQuiz();
         renderMinistries();
+        renderMultiplayerRoster();
+    }
+
+    // Multiplayer Party Members List
+    state.members = [
+        { id: "m1", name: "आलोक शर्मा (आप)", role: "राष्ट्रीय अध्यक्ष (Leader)", state: "समस्त भारत", xp: 4800, level: 12, online: true },
+        { id: "m2", name: "रोहित वर्मा (Friend)", role: "प्रदेश अध्यक्ष (State Leader)", state: "बिहार", xp: 2900, level: 8, online: true },
+        { id: "m3", name: "प्रिया देशमुख", role: "मुख्य मीडिया प्रबंधक", state: "राष्ट्रीय मीडिया", xp: 3200, level: 9, online: true },
+        { id: "m4", name: "अमन चौधरी", role: "युवा मोर्चा अध्यक्ष", state: "उत्तर प्रदेश", xp: 2100, level: 7, online: true },
+        { id: "m5", name: "विक्रम सिंह", role: "जिलाध्यक्ष", state: "वाराणसी", xp: 1500, level: 5, online: false }
+    ];
+
+    state.stateSupport = {
+        "उत्तर प्रदेश": 58,
+        "बिहार": 54,
+        "महाराष्ट्र": 48
+    };
+
+    function renderMultiplayerRoster() {
+        const container = document.getElementById('mp-members-list');
+        if (!container) return;
+        container.innerHTML = state.members.map((m, idx) => `
+            <div class="card" style="padding: 12px; margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-user fa-lg" style="color: var(--saffron);"></i>
+                        <div>
+                            <div style="font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                                ${m.name}
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background: ${m.online ? 'var(--green)' : 'var(--text-muted)'}; display: inline-block;"></span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Lv.${m.level} • ${m.xp} XP • प्रभार: <b>${m.state}</b></div>
+                        </div>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 700; color: var(--gold); background: rgba(245, 158, 11, 0.15); padding: 3px 6px; border-radius: 6px;">
+                        ${m.role.split(' ')[0]}
+                    </span>
+                </div>
+                ${idx > 0 ? `
+                <div style="margin-top: 8px; display: flex; gap: 6px;">
+                    <select class="form-input" style="padding: 4px 8px; font-size: 11px;" onchange="changeMemberRole(${idx}, this.value)">
+                        <option value="प्रदेश अध्यक्ष (State Leader)" ${m.role.includes('State') ? 'selected' : ''}>प्रदेश अध्यक्ष (State Leader)</option>
+                        <option value="मुख्य चुनाव प्रबंधक" ${m.role.includes('चुनाव') ? 'selected' : ''}>मुख्य चुनाव प्रबंधक (Campaign Mgr)</option>
+                        <option value="मुख्य मीडिया प्रबंधक" ${m.role.includes('मीडिया') ? 'selected' : ''}>मुख्य मीडिया प्रबंधक (Media Mgr)</option>
+                        <option value="युवा मोर्चा अध्यक्ष" ${m.role.includes('युवा') ? 'selected' : ''}>युवा मोर्चा अध्यक्ष (Youth Wing)</option>
+                        <option value="जिलाध्यक्ष" ${m.role.includes('जिलाध्यक्ष') ? 'selected' : ''}>जिलाध्यक्ष (District Leader)</option>
+                    </select>
+                </div>
+                ` : ''}
+            </div>
+        `).join('');
+
+        if (document.getElementById('val-st-up')) document.getElementById('val-st-up').innerText = `${state.stateSupport["उत्तर प्रदेश"]}%`;
+        if (document.getElementById('val-st-bihar')) document.getElementById('val-st-bihar').innerText = `${state.stateSupport["बिहार"]}%`;
+    }
+
+    function inviteFriendOnline() {
+        const inp = document.getElementById('inp-friend-invite');
+        const val = inp.value.trim();
+        if (!val) {
+            alert(state.isHindi ? "कृपया मित्र का Username या Player ID दर्ज करें!" : "Please enter Friend's Username or Player ID!");
+            return;
+        }
+
+        state.members.push({
+            id: 'm_' + Date.now(),
+            name: val + " (Online Friend)",
+            role: "प्रदेश अध्यक्ष (State Leader)",
+            state: "महाराष्ट्र",
+            xp: 1800,
+            level: 6,
+            online: true
+        });
+
+        playBeep(750, 'sine', 0.2);
+        inp.value = '';
+        renderMultiplayerRoster();
+        addNotification(`मित्र '${val}' आमंत्रण स्वीकार कर पार्टी में शामिल हो गए!`);
+        alert(state.isHindi ? `बधाई! '${val}' पार्टी से जुड़े और उन्हें 'महाराष्ट्र प्रदेश अध्यक्ष' पद दिया गया।` : `Success! '${val}' joined party and assigned as Maharashtra State Leader.`);
+    }
+
+    function changeMemberRole(idx, newRole) {
+        if (!state.members[idx]) return;
+        state.members[idx].role = newRole;
+        playBeep(620, 'triangle', 0.15);
+        renderMultiplayerRoster();
+        addNotification(`${state.members[idx].name} का पद बदलकर '${newRole}' किया गया।`);
+    }
+
+    function launchJointStateCampaign(targetState) {
+        if (state.party.funds < 50000 || state.player.energy < 15) {
+            alert(state.isHindi ? "अभियान के लिए अपर्याप्त पार्टी कोष या ऊर्जा!" : "Insufficient party funds or energy!");
+            return;
+        }
+
+        state.party.funds -= 50000;
+        state.player.energy = Math.max(0, state.player.energy - 15);
+        state.stateSupport[targetState] = Math.min(100, (state.stateSupport[targetState] || 50) + 7);
+        state.party.popularity = Math.min(100, state.party.popularity + 4.5);
+
+        playBeep(850, 'square', 0.25);
+        updateHUD();
+        renderMultiplayerRoster();
+        addNotification(`📢 ${targetState} में प्रदेश प्रभारी द्वारा महा-रैली संपन्न! जनसमर्थन बढ़कर ${state.stateSupport[targetState]}% हुआ।`);
+        alert(state.isHindi ? `शानदार! ${targetState} में संयुक्त महा-रैली सफल रही। ${targetState} में समर्थन +7% और राष्ट्रीय पार्टी लोकप्रियता +4.5% बढ़ी!` : `Joint Mega Rally in ${targetState} successful! State support +7%, National popularity +4.5%!`);
     }
 
     function initMapCanvas() {

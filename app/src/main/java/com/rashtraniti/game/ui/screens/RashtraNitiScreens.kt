@@ -104,6 +104,19 @@ fun RashtraNitiMainApp(viewModel: RashtraNitiViewModel) {
                         state = state,
                         onAnswer = { qIdx, optIdx -> viewModel.answerQuiz(qIdx, optIdx) }
                     )
+                    "MULTIPLAYER" -> MultiplayerPartyScreen(
+                        state = state,
+                        isHindi = state.isHindi,
+                        onInviteFriend = { username ->
+                            viewModel.navigateTo("MULTIPLAYER")
+                        },
+                        onAssignRole = { pid, role, stateName ->
+                            viewModel.navigateTo("MULTIPLAYER")
+                        },
+                        onExecuteCollaborativeTask = { taskId, targetState ->
+                            viewModel.executeCampaign(CampaignType.PUBLIC_RALLY)
+                        }
+                    )
                     "CRISIS" -> state.activeCrisis?.let { crisis ->
                         CrisisAlertView(
                             crisis = crisis,
@@ -633,11 +646,11 @@ fun MainHomeDashboardView(
                         onClick = { onNavigate("QUIZ") }
                     )
                     ActionTile(
-                        title = if (state.isHindi) "संसद व विधेयक" else "Parliament Floor",
-                        icon = Icons.Default.AccountBalance,
-                        tint = Color(0xFF60A5FA),
+                        title = if (state.isHindi) "मल्टीप्लेयर व मित्र" else "Multiplayer & Team",
+                        icon = Icons.Default.GroupAdd,
+                        tint = Color(0xFFA855F7),
                         modifier = Modifier.weight(1f),
-                        onClick = { onNavigate("PARLIAMENT") }
+                        onClick = { onNavigate("MULTIPLAYER") }
                     )
                 }
 
