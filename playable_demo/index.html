@@ -579,8 +579,14 @@
             <!-- Live Actions -->
             <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;" id="lbl-quick-actions">रणनीतिक कार्य</h3>
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px;">
+                <button class="btn-secondary" onclick="switchNav('screen-party-mgmt')">
+                    <i class="fa-solid fa-sitemap" style="color: var(--saffron);"></i> <span id="lbl-act-party-mgmt">पार्टी संगठनात्मक ढांचा</span>
+                </button>
                 <button class="btn-secondary" onclick="switchNav('screen-campaign')">
-                    <i class="fa-solid fa-bullhorn" style="color: var(--saffron);"></i> <span id="lbl-act-camp">प्रचार अभियान</span>
+                    <i class="fa-solid fa-bullhorn" style="color: var(--gold);"></i> <span id="lbl-act-camp">प्रचार अभियान</span>
+                </button>
+                <button class="btn-secondary" onclick="switchNav('screen-multiplayer')">
+                    <i class="fa-solid fa-users" style="color: #A855F7;"></i> <span id="lbl-act-multiplayer">मल्टीप्लेयर व मित्र</span>
                 </button>
                 <button class="btn-secondary" onclick="switchNav('screen-map')">
                     <i class="fa-solid fa-map-location-dot" style="color: var(--green);"></i> <span id="lbl-act-map">भारत नक्शा</span>
@@ -792,8 +798,37 @@
                     <i class="fa-solid fa-paper-plane"></i> अभियान आदेश जारी करें (Deploy Rally)
                 </button>
             </div>
-        </div>
+        <!-- 12. Party Leadership & Member Management Screen -->
+        <div class="screen" id="screen-party-mgmt">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div>
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--saffron);">पार्टी संगठनात्मक ढांचा</h2>
+                    <span style="font-size: 11px; color: var(--text-muted);">पदाधिकारी प्रबंधन, पदोन्नति व मिशन तैनाती</span>
+                </div>
+                <button class="btn-primary" onclick="openRecruitModal()" style="width: auto; padding: 6px 12px; font-size: 12px;">
+                    <i class="fa-solid fa-user-plus"></i> भर्ती करें
+                </button>
+            </div>
 
+            <!-- Party HQ Stats -->
+            <div class="card" style="background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 13px; font-weight: 700; color: var(--saffron);">राष्ट्रीय अध्यक्ष: <span id="hq-president-name">आलोक शर्मा</span></span>
+                    <span style="font-size: 11px; color: var(--green); font-weight: 700;">स्थिरता: 92%</span>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <button class="btn-secondary" onclick="conductCadreTraining()" style="padding: 6px; font-size: 11px;">
+                        <i class="fa-solid fa-graduation-cap" style="color: var(--gold);"></i> कार्यकर्ता प्रशिक्षण शिविर (+XP)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Member Roster with Controls -->
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">पार्टी नेतृत्व व पदाधिकारी रोस्टर</h3>
+            <div id="party-mgmt-members-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Dynamically rendered -->
+            </div>
+        </div>
     </div>
 
     <!-- Bottom Navigation Bar -->
@@ -972,6 +1007,7 @@
             if (navEl) navEl.classList.add('active');
         }
         if (id === 'screen-multiplayer') renderMultiplayerRoster();
+        if (id === 'screen-party-mgmt') renderPartyMgmtRoster();
     }
 
     function switchNav(id) {
@@ -1238,7 +1274,137 @@
         updateHUD();
         renderMultiplayerRoster();
         addNotification(`📢 ${targetState} में प्रदेश प्रभारी द्वारा महा-रैली संपन्न! जनसमर्थन बढ़कर ${state.stateSupport[targetState]}% हुआ।`);
-        alert(state.isHindi ? `शानदार! ${targetState} में संयुक्त महा-रैली सफल रही। ${targetState} में समर्थन +7% और राष्ट्रीय पार्टी लोकप्रियता +4.5% बढ़ी!` : `Joint Mega Rally in ${targetState} successful! State support +7%, National popularity +4.5%!`);
+    // Party Leadership & Member Management System
+    state.leadershipRoster = [
+        { id: "l1", name: "डॉ. हर्षवर्द्धन शास्त्री", rank: "वरिष्ठ राष्ट्रीय नेता", wing: "मुख्य दल", state: "उत्तर प्रदेश", lead: 82, comm: 88, pol: 92, strat: 85, admin: 80, media: 90, loyalty: 88, support: 68, xp: 3600, level: 10, currentDuty: "प्राइम टाइम टीवी डिबेट" },
+        { id: "l2", name: "राघवेंद्र सिंह राठौड़", rank: "प्रदेश अध्यक्ष (State Leader)", wing: "मुख्य दल", state: "बिहार", lead: 78, comm: 75, pol: 70, strat: 80, admin: 76, media: 72, loyalty: 82, support: 62, xp: 2900, level: 8, currentDuty: "महा-रैली संचालन" },
+        { id: "l3", name: "सुश्री अंजलि त्रिवेदी", rank: "युवा मोर्चा अध्यक्ष", wing: "युवा मोर्चा", state: "महाराष्ट्र", lead: 74, comm: 86, pol: 68, strat: 72, admin: 65, media: 92, loyalty: 94, support: 58, xp: 2400, level: 7, currentDuty: "कैंपस व डिजिटल जनसंपर्क" },
+        { id: "l4", name: "सुमन लता देवी", rank: "महिला मोर्चा अध्यक्ष", wing: "महिला मोर्चा", state: "मध्य प्रदेश", lead: 76, comm: 82, pol: 74, strat: 75, admin: 82, media: 78, loyalty: 90, support: 65, xp: 2600, level: 8, currentDuty: "बूथ व महिला चौपाल" },
+        { id: "l5", name: "प्रदीप कुमार नायर", rank: "जिलाध्यक्ष (District Leader)", wing: "मुख्य दल", state: "वाराणसी", lead: 68, comm: 72, pol: 66, strat: 70, admin: 72, media: 60, loyalty: 78, support: 52, xp: 1800, level: 6, currentDuty: "घर-घर जनसंपर्क" }
+    ];
+
+    function renderPartyMgmtRoster() {
+        const container = document.getElementById('party-mgmt-members-list');
+        if (!container) return;
+        document.getElementById('hq-president-name').innerText = state.player.name;
+
+        container.innerHTML = state.leadershipRoster.map((m, idx) => `
+            <div class="card" style="padding: 12px; margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="font-size: 14px; font-weight: 700; color: #FFF;">${m.name}</span>
+                        <div style="font-size: 11px; color: var(--text-muted);">${m.rank} • प्रभार: <b>${m.state}</b> (${m.wing})</div>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 700; color: ${m.loyalty >= 80 ? 'var(--green)' : 'var(--gold)'}; background: rgba(19, 136, 8, 0.15); padding: 3px 6px; border-radius: 6px;">
+                        निष्ठा: ${m.loyalty}%
+                    </span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; font-size: 11px; background: rgba(15,23,42,0.6); padding: 8px; border-radius: 8px;">
+                    <div><span style="color: var(--text-muted);">नेतृत्व:</span> <b>${m.lead}</b></div>
+                    <div><span style="color: var(--text-muted);">संवाद:</span> <b>${m.comm}</b></div>
+                    <div><span style="color: var(--text-muted);">रणनीति:</span> <b>${m.strat}</b></div>
+                    <div><span style="color: var(--text-muted);">मीडिया:</span> <b>${m.media}</b></div>
+                    <div><span style="color: var(--text-muted);">समर्थन:</span> <b>${m.support}%</b></div>
+                    <div><span style="color: var(--gold);">स्तर:</span> <b>Lv.${m.level}</b></div>
+                </div>
+
+                <div style="font-size: 11px; color: var(--saffron); margin-bottom: 8px;">
+                    <i class="fa-solid fa-bullseye"></i> वर्तमान दायित्व: <b>${m.currentDuty}</b>
+                </div>
+
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn-secondary" style="padding: 6px; font-size: 11px;" onclick="deployMemberMission(${idx}, 'रैली')">
+                        <i class="fa-solid fa-bullhorn" style="color: var(--saffron);"></i> रैली भेजें
+                    </button>
+                    <button class="btn-secondary" style="padding: 6px; font-size: 11px;" onclick="deployMemberMission(${idx}, 'टीवी डिबेट')">
+                        <i class="fa-solid fa-tv" style="color: #60A5FA;"></i> टीवी डिबेट
+                    </button>
+                    <button class="btn-secondary" style="padding: 6px; font-size: 11px; color: var(--gold);" onclick="promotePartyMember(${idx})">
+                        <i class="fa-solid fa-angles-up"></i> पदोन्नति (+Rank)
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function deployMemberMission(idx, missionType) {
+        const m = state.leadershipRoster[idx];
+        if (!m) return;
+        m.currentDuty = `${missionType} अभियान सक्रिय`;
+        m.xp += 250;
+        m.loyalty = Math.min(100, m.loyalty + 3);
+        state.party.popularity = Math.min(100, state.party.popularity + 1.5);
+        state.player.publicTrust = Math.min(100, state.player.publicTrust + 1.2);
+
+        playBeep(720, 'triangle', 0.2);
+        updateHUD();
+        renderPartyMgmtRoster();
+        addNotification(`🎯 ${m.name} को ${m.state} में '${missionType}' हेतु तैनात किया गया। पार्टी लोकप्रियता +1.5%`);
+        alert(state.isHindi ? `मिशन सफल! ${m.name} ने ${m.state} में ${missionType} का शानदार नेतृत्व किया। (+250 XP, निष्ठा +3%)` : `Mission Launched! ${m.name} deployed on ${missionType} in ${m.state}.`);
+    }
+
+    function promotePartyMember(idx) {
+        const m = state.leadershipRoster[idx];
+        if (!m) return;
+        const oldRank = m.rank;
+        if (m.rank.includes("जिलाध्यक्ष")) m.rank = "प्रदेश अध्यक्ष (State Leader)";
+        else if (m.rank.includes("प्रदेश")) m.rank = "वरिष्ठ राष्ट्रीय नेता (Senior Leader)";
+        else m.rank = "वरिष्ठ राष्ट्रीय उपाध्यक्ष (Vice President)";
+
+        m.loyalty = Math.min(100, m.loyalty + 15);
+        m.lead += 3;
+        playBeep(880, 'sine', 0.25);
+        renderPartyMgmtRoster();
+        addNotification(`🎖️ ${m.name} को पदोन्नत कर '${m.rank}' बनाया गया।`);
+        alert(state.isHindi ? `बधाई! ${m.name} को '${oldRank}' से पदोन्नत कर '${m.rank}' बनाया गया। (निष्ठा बढ़कर ${m.loyalty}% हुई)` : `Promoted! ${m.name} elevated to ${m.rank}.`);
+    }
+
+    function conductCadreTraining() {
+        if (state.party.funds < 20000) {
+            alert(state.isHindi ? "प्रशिक्षण शिविर हेतु कम से कम ₹20,000 कोष आवश्यक है!" : "Requires at least ₹20,000 party funds!");
+            return;
+        }
+        state.party.funds -= 20000;
+        state.leadershipRoster.forEach(m => {
+            m.xp += 300;
+            m.comm += 2;
+            m.strat += 2;
+            m.lead += 1;
+            m.loyalty = Math.min(100, m.loyalty + 4);
+        });
+        playBeep(800, 'sine', 0.3);
+        updateHUD();
+        renderPartyMgmtRoster();
+        addNotification("🎓 राष्ट्रीय कार्यकर्ता प्रशिक्षण शिविर संपन्न! सभी नेताओं के संवाद, रणनीति व XP में वृद्धि हुई।");
+        alert(state.isHindi ? "राष्ट्रीय कार्यकर्ता प्रशिक्षण शिविर सफल रहा! सभी पदाधिकारियों को +300 XP और सांख्यिकी वृद्धि मिली।" : "Cadre Training Complete! All leaders earned +300 XP and stat boosts.");
+    }
+
+    function openRecruitModal() {
+        const newNames = ["प्रो. अरविंद बाजपेयी", "श्रीमती मीनाक्षी सुंदरम", "करणवीर सिंह", "डॉ. तन्वी सहाय"];
+        const randomName = newNames[Math.floor(Math.random() * newNames.length)];
+        state.leadershipRoster.push({
+            id: 'l_' + Date.now(),
+            name: randomName,
+            rank: "प्रदेश अध्यक्ष (State Leader)",
+            wing: "मुख्य दल",
+            state: "गुजरात",
+            lead: 75,
+            comm: 80,
+            pol: 78,
+            strat: 74,
+            admin: 76,
+            media: 82,
+            loyalty: 90,
+            support: 60,
+            xp: 2200,
+            level: 7,
+            currentDuty: "मुख्यालय पर उपस्थित"
+        });
+        playBeep(700, 'sine', 0.2);
+        renderPartyMgmtRoster();
+        addNotification(`🌟 नए अनुभवी नेता '${randomName}' पार्टी में शामिल हुए!`);
+        alert(state.isHindi ? `स्वागत है! '${randomName}' को गुजरात राज्य प्रभारी के रूप में पार्टी में शामिल किया गया।` : `Recruited! '${randomName}' joined the leadership team.`);
     }
 
     function initMapCanvas() {

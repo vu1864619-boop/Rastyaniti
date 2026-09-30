@@ -117,6 +117,19 @@ fun RashtraNitiMainApp(viewModel: RashtraNitiViewModel) {
                             viewModel.executeCampaign(CampaignType.PUBLIC_RALLY)
                         }
                     )
+                    "PARTY_MGMT" -> PartyLeaderManagementScreen(
+                        state = state,
+                        isHindi = state.isHindi,
+                        onDeployMember = { member, task ->
+                            viewModel.executeCampaign(CampaignType.PUBLIC_RALLY)
+                        },
+                        onPromoteMember = { member, newRank ->
+                            // Update rank and loyalty
+                        },
+                        onRecruitMember = { recruit ->
+                            // Add to party roster
+                        }
+                    )
                     "CRISIS" -> state.activeCrisis?.let { crisis ->
                         CrisisAlertView(
                             crisis = crisis,
