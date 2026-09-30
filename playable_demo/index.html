@@ -737,67 +737,103 @@
             </div>
 
             <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;" id="lbl-crisis-choices">कार्यकारी निर्णय विकल्प</h3>
-            <div id="crisis-choices-container" style="display: flex; flex-direction: column; gap: 10px;">
-                <!-- Choices injected -->
             </div>
-        <!-- 11. Multiplayer Party & Friends Screen -->
+        </div>
+
+        <!-- 11. Friends & Multiplayer Party Hub Screen -->
         <div class="screen" id="screen-multiplayer">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <div>
-                    <h2 style="font-size: 20px; font-weight: 800; color: var(--saffron);" id="txt-mp-title">मल्टीप्लेयर पार्टी मुख्यालय</h2>
-                    <span style="font-size: 11px; color: var(--text-muted);">ऑनलाइन मित्र व विकेंद्रीकृत राज्य प्रचार</span>
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--saffron);" id="txt-mp-title">मित्र व मल्टीप्लेयर पार्टी हब</h2>
+                    <span style="font-size: 11px; color: var(--text-muted);">ऑनलाइन मित्र, पार्टी चैट, विकेंद्रीकृत प्रभार व लीडरबोर्ड</span>
                 </div>
                 <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid var(--gold); color: var(--gold); padding: 4px 8px; border-radius: 8px; font-weight: 700; font-size: 11px;">
-                    कोड: <span id="mp-party-code">JSP-9821</span>
+                    पार्टी कोड: <span id="mp-party-code">JSP-9821</span>
                 </div>
             </div>
 
-            <!-- Party Invite & Share -->
-            <div class="card" style="background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));">
-                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                    <input type="text" id="inp-friend-invite" class="form-input" placeholder="मित्र का Username / Player ID" style="padding: 8px 10px; font-size: 13px;">
-                    <button class="btn-primary" onclick="inviteFriendOnline()" style="width: auto; padding: 8px 14px; font-size: 13px; white-space: nowrap;">
-                        <i class="fa-solid fa-user-plus"></i> जोड़ें
+            <!-- 4-Tab Hub Selector -->
+            <div style="display: flex; gap: 4px; background: var(--dark-card); padding: 4px; border-radius: 10px; margin-bottom: 12px;">
+                <button class="btn-secondary" id="btn-hub-tab-0" onclick="switchHubTab(0)" style="flex: 1; padding: 6px; font-size: 11px; font-weight: 700; border-color: var(--saffron); color: var(--saffron);">पार्टी सदस्य</button>
+                <button class="btn-secondary" id="btn-hub-tab-1" onclick="switchHubTab(1)" style="flex: 1; padding: 6px; font-size: 11px;">मित्र सूची</button>
+                <button class="btn-secondary" id="btn-hub-tab-2" onclick="switchHubTab(2)" style="flex: 1; padding: 6px; font-size: 11px;">पार्टी चैट</button>
+                <button class="btn-secondary" id="btn-hub-tab-3" onclick="switchHubTab(3)" style="flex: 1; padding: 6px; font-size: 11px;">लीडरबोर्ड</button>
+            </div>
+
+            <!-- TAB 0: Party Members & Delegation -->
+            <div id="hub-tab-content-0">
+                <!-- State Delegation & Live Stats -->
+                <h3 style="font-size: 13px; font-weight: 700; margin-bottom: 6px;">राज्यों का लाइव प्रभार व समर्थन</h3>
+                <div class="stat-grid" id="mp-state-support-grid">
+                    <div class="stat-box">
+                        <span class="stat-label">उत्तर प्रदेश (अमन)</span>
+                        <span class="stat-val" style="color: var(--saffron);" id="val-st-up">58%</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">बिहार (रोहित वर्मा)</span>
+                        <span class="stat-val" style="color: var(--green);" id="val-st-bihar">54%</span>
+                    </div>
+                </div>
+
+                <!-- Party Members Roster -->
+                <h3 style="font-size: 13px; font-weight: 700; margin-bottom: 6px;">सक्रिय पार्टी पदाधिकारी सूची</h3>
+                <div id="mp-members-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                    <!-- Members injected dynamically -->
+                </div>
+
+                <!-- Joint Activity Operation -->
+                <div class="card" style="border-left: 3px solid var(--saffron);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 13px; font-weight: 700;">📢 बिहार राज्य महा-रैली</span>
+                        <span style="font-size: 11px; color: var(--gold); font-weight: 700;">₹50k | -15⚡</span>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-muted); margin: 6px 0;">
+                        बिहार प्रदेश अध्यक्ष (रोहित) को रैली का आदेश दें। इससे बिहार समर्थन +7% और पूरी पार्टी का कोष बढ़ेगा।
+                    </p>
+                    <button class="btn-primary" onclick="launchJointStateCampaign('बिहार')" style="padding: 8px 12px; font-size: 12px;">
+                        <i class="fa-solid fa-paper-plane"></i> अभियान आदेश जारी करें (Deploy Rally)
                     </button>
                 </div>
-                <p style="font-size: 11px; color: var(--text-muted);">
-                    मित्र के जुड़ते ही वह आपकी पार्टी का सक्रिय ऑनलाइन सदस्य बन जाएगा।
-                </p>
             </div>
 
-            <!-- State Delegation & Live Stats -->
-            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">राज्यों का लाइव प्रभार व समर्थन</h3>
-            <div class="stat-grid" id="mp-state-support-grid">
-                <div class="stat-box">
-                    <span class="stat-label">उत्तर प्रदेश (अमन)</span>
-                    <span class="stat-val" style="color: var(--saffron);" id="val-st-up">58%</span>
+            <!-- TAB 1: Friends List & Search / Invite -->
+            <div id="hub-tab-content-1" style="display: none;">
+                <div class="card" style="margin-bottom: 12px;">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="inp-friend-search" class="form-input" placeholder="मित्र का Username / Player ID..." style="padding: 8px 10px; font-size: 12px;">
+                        <button class="btn-primary" onclick="searchAndAddFriend()" style="width: auto; padding: 8px 12px; font-size: 12px; white-space: nowrap;">
+                            <i class="fa-solid fa-user-plus"></i> जोड़ें
+                        </button>
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <span class="stat-label">बिहार (रोहित वर्मा)</span>
-                    <span class="stat-val" style="color: var(--green);" id="val-st-bihar">54%</span>
+                <h3 style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">मित्र सूची व ऑनलाइन स्थिति</h3>
+                <div id="friends-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Friends injected -->
                 </div>
             </div>
 
-            <!-- Party Members Roster -->
-            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">पार्टी पदाधिकारी व सदस्य सूची</h3>
-            <div id="mp-members-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
-                <!-- Members injected dynamically -->
+            <!-- TAB 2: Party Chat & Strategic Broadcast -->
+            <div id="hub-tab-content-2" style="display: none;">
+                <div id="party-chat-messages-container" style="display: flex; flex-direction: column; gap: 8px; height: 260px; overflow-y: auto; background: rgba(15,23,42,0.6); padding: 10px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--dark-border);">
+                    <!-- Chat messages -->
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="inp-party-chat" class="form-input" placeholder="रणनीतिक संदेश या घोषणा लिखें..." style="padding: 10px; font-size: 13px;">
+                    <button class="btn-primary" onclick="sendPartyChatMessage()" style="width: auto; padding: 10px 16px;">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
 
-            <!-- Joint Activity Operation -->
-            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">संयुक्त चुनावी अभियान</h3>
-            <div class="card" style="border-left: 3px solid var(--saffron);">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 14px; font-weight: 700;">📢 बिहार राज्य महा-रैली</span>
-                    <span style="font-size: 12px; color: var(--gold); font-weight: 700;">₹50k | -15⚡</span>
+            <!-- TAB 3: Contribution Leaderboard -->
+            <div id="hub-tab-content-3" style="display: none;">
+                <h3 style="font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--gold);">पार्टी योगदान लीडरबोर्ड</h3>
+                <div id="party-leaderboard-container" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Leaderboard injected -->
                 </div>
-                <p style="font-size: 11px; color: var(--text-muted); margin: 6px 0;">
-                    बिहार प्रदेश अध्यक्ष (रोहित) को रैली का आदेश दें। इससे बिहार समर्थन +7% और पूरी पार्टी का कोष बढ़ेगा।
-                </p>
-                <button class="btn-primary" onclick="launchJointStateCampaign('बिहार')" style="padding: 8px 12px; font-size: 13px;">
-                    <i class="fa-solid fa-paper-plane"></i> अभियान आदेश जारी करें (Deploy Rally)
-                </button>
             </div>
+        </div>
+
         <!-- 12. Party Leadership & Member Management Screen -->
         <div class="screen" id="screen-party-mgmt">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -1256,6 +1292,156 @@
 
         if (document.getElementById('val-st-up')) document.getElementById('val-st-up').innerText = `${state.stateSupport["उत्तर प्रदेश"]}%`;
         if (document.getElementById('val-st-bihar')) document.getElementById('val-st-bihar').innerText = `${state.stateSupport["बिहार"]}%`;
+    }
+
+    // Hub Tabs Switcher
+    function switchHubTab(tabIdx) {
+        for (let i = 0; i < 4; i++) {
+            const btn = document.getElementById(`btn-hub-tab-${i}`);
+            const content = document.getElementById(`hub-tab-content-${i}`);
+            if (btn && content) {
+                if (i === tabIdx) {
+                    btn.style.borderColor = 'var(--saffron)';
+                    btn.style.color = 'var(--saffron)';
+                    btn.style.fontWeight = '700';
+                    content.style.display = 'block';
+                } else {
+                    btn.style.borderColor = 'var(--dark-border)';
+                    btn.style.color = 'var(--text-main)';
+                    btn.style.fontWeight = 'normal';
+                    content.style.display = 'none';
+                }
+            }
+        }
+        playBeep(480, 'sine', 0.1);
+        if (tabIdx === 0) renderMultiplayerRoster();
+        else if (tabIdx === 1) renderFriendsList();
+        else if (tabIdx === 2) renderChatMessages();
+        else if (tabIdx === 3) renderPartyLeaderboard();
+    }
+
+    // Friends System State
+    state.friends = [
+        { id: "fr_1", name: "राहुल सिंह", username: "rahul_gaming", level: 8, xp: 3800, online: true, partyRole: "वरिष्ठ नेता", lead: 84, comm: 88, strat: 82, points: 850 },
+        { id: "fr_2", name: "अमित वर्मा", username: "amit_patna", level: 7, xp: 3100, online: true, partyRole: "प्रदेश अध्यक्ष (बिहार)", lead: 78, comm: 82, strat: 75, points: 720 },
+        { id: "fr_3", name: "प्रिया देशमुख", username: "priya_deshmukh", level: 9, xp: 4400, online: true, partyRole: "मुख्य मीडिया प्रबंधक", lead: 75, comm: 90, strat: 78, points: 940 },
+        { id: "fr_4", name: "विकास कुमार", username: "vikas_up", level: 6, xp: 2200, online: false, partyRole: "स्वतंत्र खिलाड़ी", lead: 68, comm: 74, strat: 70, points: 420 },
+        { id: "fr_5", name: "नेहा कपूर", username: "neha_delhi", level: 5, xp: 1800, online: true, partyRole: "स्वतंत्र खिलाड़ी", lead: 72, comm: 80, strat: 74, points: 380 }
+    ];
+
+    state.chatMessages = [
+        { sender: state.player.name, role: "राष्ट्रीय अध्यक्ष", text: "साथियों, आगामी चुनाव में बिहार और यूपी में घर-घर जनसंपर्क तेज करना है!", time: "10:15 AM", isLeader: true },
+        { sender: "अमित वर्मा", role: "बिहार प्रभारी", text: "अध्यक्ष जी, पटना और मुजफ्फरपुर में 50 नए बूथ कार्यकर्ता तैयार हैं।", time: "10:18 AM" },
+        { sender: "प्रिया देशमुख", role: "मीडिया प्रभारी", text: "आज शाम 7 बजे राष्ट्रीय चैनल पर डिबेट के लिए पार्टी का श्वेतपत्र तैयार है।", time: "10:22 AM" }
+    ];
+
+    function renderFriendsList() {
+        const container = document.getElementById('friends-list-container');
+        if (!container) return;
+        container.innerHTML = state.friends.map(f => `
+            <div class="card" style="padding: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-circle-user fa-lg" style="color: var(--saffron);"></i>
+                    <div>
+                        <div style="font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                            ${f.name} <span style="font-size: 10px; color: var(--text-muted);">(@${f.username})</span>
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background: ${f.online ? 'var(--green)' : 'var(--text-muted)'}; display: inline-block;"></span>
+                        </div>
+                        <div style="font-size: 10px; color: var(--text-muted);">${f.partyRole} • Lv.${f.level} (${f.xp} XP)</div>
+                    </div>
+                </div>
+                <button class="btn-secondary" style="padding: 4px 8px; font-size: 10px;" onclick="alert('Player ID: ${f.id}\\nUsername: @${f.username}\\nनेतृत्व: ${f.lead}/100\\nसंवाद: ${f.comm}/100\\nरणनीति: ${f.strat}/100\\nयोगदान अंक: ${f.points} pts')">
+                    प्रोफाइल
+                </button>
+            </div>
+        `).join('');
+    }
+
+    function searchAndAddFriend() {
+        const inp = document.getElementById('inp-friend-search');
+        const val = inp.value.trim();
+        if (!val) {
+            alert(state.isHindi ? "मित्र का Username या Player ID दर्ज करें!" : "Enter Username or Player ID!");
+            return;
+        }
+        state.friends.push({
+            id: 'fr_' + Date.now(),
+            name: val,
+            username: val.toLowerCase().replace(/\s+/g, '_'),
+            level: 5,
+            xp: 1500,
+            online: true,
+            partyRole: "पार्टी सदस्य (New Friend)",
+            lead: 70,
+            comm: 75,
+            strat: 70,
+            points: 200
+        });
+        inp.value = '';
+        playBeep(700, 'sine', 0.2);
+        renderFriendsList();
+        addNotification(`मित्र '@${val}' सफलतापूर्वक आपकी मित्र सूची में जुड़ गए!`);
+    }
+
+    function renderChatMessages() {
+        const container = document.getElementById('party-chat-messages-container');
+        if (!container) return;
+        container.innerHTML = state.chatMessages.map(msg => `
+            <div style="background: ${msg.isLeader ? 'rgba(30,27,75,0.85)' : 'rgba(30,41,59,0.7)'}; border: 1px solid ${msg.isLeader ? 'var(--saffron)' : 'var(--dark-border)'}; border-radius: 8px; padding: 8px 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                    <b style="color: ${msg.isLeader ? 'var(--saffron)' : 'var(--gold)'};">${msg.sender} (${msg.role})</b>
+                    <span style="color: var(--text-muted); font-size: 10px;">${msg.time}</span>
+                </div>
+                <div style="font-size: 12px; color: #FFF;">${msg.text}</div>
+            </div>
+        `).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function sendPartyChatMessage() {
+        const inp = document.getElementById('inp-party-chat');
+        const txt = inp.value.trim();
+        if (!txt) return;
+
+        state.chatMessages.push({
+            sender: state.player.name,
+            role: "राष्ट्रीय अध्यक्ष",
+            text: txt,
+            time: "अभी (Now)",
+            isLeader: true
+        });
+        inp.value = '';
+        playBeep(650, 'triangle', 0.15);
+        renderChatMessages();
+    }
+
+    function renderPartyLeaderboard() {
+        const container = document.getElementById('party-leaderboard-container');
+        if (!container) return;
+        const ranks = [
+            { name: "प्रिया देशमुख", role: "मुख्य मीडिया प्रबंधक", pts: 1140, rank: 1 },
+            { name: "राहुल सिंह", role: "वरिष्ठ राष्ट्रीय नेता", pts: 1080, rank: 2 },
+            { name: "अमित वर्मा", role: "प्रदेश अध्यक्ष (बिहार)", pts: 950, rank: 3 },
+            { name: state.player.name, role: "राष्ट्रीय अध्यक्ष", pts: 880, rank: 4 }
+        ];
+
+        container.innerHTML = ranks.map(r => `
+            <div class="card" style="padding: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="background: ${r.rank === 1 ? 'var(--gold)' : (r.rank === 2 ? '#CBD5E1' : '#B45309')}; color: #000; font-weight: 800; font-size: 11px; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        #${r.rank}
+                    </span>
+                    <div>
+                        <div style="font-weight: 700; font-size: 13px; color: #FFF;">${r.name}</div>
+                        <div style="font-size: 10px; color: var(--text-muted);">${r.role}</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="color: var(--saffron); font-weight: 800; font-size: 14px;">${r.pts} pts</span>
+                    <div style="font-size: 9px; color: var(--text-muted);">अभियान व मीडिया</div>
+                </div>
+            </div>
+        `).join('');
     }
 
     function inviteFriendOnline() {

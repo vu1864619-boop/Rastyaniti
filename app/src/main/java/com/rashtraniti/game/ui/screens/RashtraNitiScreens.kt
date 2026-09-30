@@ -104,18 +104,10 @@ fun RashtraNitiMainApp(viewModel: RashtraNitiViewModel) {
                         state = state,
                         onAnswer = { qIdx, optIdx -> viewModel.answerQuiz(qIdx, optIdx) }
                     )
-                    "MULTIPLAYER" -> MultiplayerPartyScreen(
+                    "MULTIPLAYER" -> FriendsAndPartyHubScreen(
                         state = state,
                         isHindi = state.isHindi,
-                        onInviteFriend = { username ->
-                            viewModel.navigateTo("MULTIPLAYER")
-                        },
-                        onAssignRole = { pid, role, stateName ->
-                            viewModel.navigateTo("MULTIPLAYER")
-                        },
-                        onExecuteCollaborativeTask = { taskId, targetState ->
-                            viewModel.executeCampaign(CampaignType.PUBLIC_RALLY)
-                        }
+                        onBack = { viewModel.navigateTo("MAIN_HOME") }
                     )
                     "PARTY_MGMT" -> PartyLeaderManagementScreen(
                         state = state,
