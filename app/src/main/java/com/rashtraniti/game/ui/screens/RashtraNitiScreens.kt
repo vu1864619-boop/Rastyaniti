@@ -28,14 +28,30 @@ import com.rashtraniti.game.ui.theme.*
 import com.rashtraniti.game.viewmodel.GameUIState
 import com.rashtraniti.game.viewmodel.RashtraNitiViewModel
 
+import com.rashtraniti.game.ui.components.BackgroundMode
+import com.rashtraniti.game.ui.components.DynamicGameBackground
+
 @Composable
 fun RashtraNitiMainApp(viewModel: RashtraNitiViewModel) {
     val state by viewModel.uiState.collectAsState()
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = DarkBackground
-    ) {
+    val currentBgMode = when (state.currentScreen) {
+        "MAIN_HOME" -> BackgroundMode.HOME
+        "MAP" -> BackgroundMode.MAP
+        "CAMPAIGN" -> BackgroundMode.CAMPAIGN
+        "PARLIAMENT" -> BackgroundMode.PRIME_MINISTER
+        "PM_DASHBOARD" -> BackgroundMode.PRIME_MINISTER
+        "ELECTION_DAY" -> BackgroundMode.ELECTION
+        "CRISIS" -> when (state.activeCrisis?.category) {
+            "DISASTER" -> BackgroundMode.CRISIS_FLOOD
+            "ECONOMY" -> BackgroundMode.CRISIS_ECONOMY
+            "MEDIA_TRIAL" -> BackgroundMode.MEDIA
+            else -> BackgroundMode.CRISIS_POLITICAL
+        }
+        else -> BackgroundMode.HOME
+    }
+
+    DynamicGameBackground(mode = currentBgMode) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Top App Bar with Resources (Shown after opening screen)
             if (state.currentScreen != "CINEMATIC" && state.currentScreen != "PLAYER_CREATE" && state.currentScreen != "PARTY_CREATE") {

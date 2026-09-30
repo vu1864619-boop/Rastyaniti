@@ -418,8 +418,11 @@
 <body>
 
 <div id="mobile-frame">
+    <!-- Global Dynamic Background Animation Canvas -->
+    <canvas id="bgAnimationCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
+
     <!-- Header HUD -->
-    <header id="top-hud" style="display: none;">
+    <header id="top-hud" style="display: none; position: relative; z-index: 50;">
         <div class="player-hud-info">
             <div class="player-name">
                 <i class="fa-solid fa-user-tie"></i>
@@ -1116,7 +1119,177 @@
         drawMap();
     }
 
-    window.addEventListener('resize', initMapCanvas);
+    // Dynamic Background Animation Engine
+    const bgCanvas = document.getElementById('bgAnimationCanvas');
+    const bgCtx = bgCanvas ? bgCanvas.getContext('2d') : null;
+    let currentBgMode = 'HOME';
+    let bgAngle = 0;
+    let pulseVal = 0;
+    let waveOffset = 0;
+    const bgParticles = Array.from({ length: 26 }, () => ({
+        x: Math.random() * 400,
+        y: Math.random() * 800,
+        vy: 0.4 + Math.random() * 0.7,
+        vx: (Math.random() - 0.5) * 0.5,
+        r: 1.5 + Math.random() * 3.5,
+        alpha: 0.2 + Math.random() * 0.5,
+        color: ['#FF9933', '#138808', '#F59E0B', '#38BDF8'][Math.floor(Math.random() * 4)]
+    }));
+
+    function resizeBgCanvas() {
+        if (!bgCanvas) return;
+        bgCanvas.width = bgCanvas.parentElement.clientWidth;
+        bgCanvas.height = bgCanvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', () => { resizeBgCanvas(); initMapCanvas(); });
+
+    function renderDynamicBackground() {
+        if (!bgCtx || !bgCanvas) return;
+        const w = bgCanvas.width;
+        const h = bgCanvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+
+        bgAngle += 0.008;
+        pulseVal = (Math.sin(bgAngle * 2.5) + 1) / 2; // 0 to 1
+        waveOffset += 0.03;
+
+        // Base Background Gradients
+        let grad = bgCtx.createLinearGradient(0, 0, 0, h);
+        if (currentBgMode === 'CRISIS_FLOOD') {
+            grad.addColorStop(0, '#031526'); grad.addColorStop(0.6, '#06203D'); grad.addColorStop(1, '#020B14');
+        } else if (currentBgMode === 'CRISIS_DROUGHT') {
+            grad.addColorStop(0, '#261204'); grad.addColorStop(0.6, '#381A05'); grad.addColorStop(1, '#0F0702');
+        } else if (currentBgMode === 'CRISIS_ECONOMY') {
+            grad.addColorStop(0, '#2E0808'); grad.addColorStop(0.6, '#1F0505'); grad.addColorStop(1, '#0A0202');
+        } else if (currentBgMode === 'PRIME_MINISTER') {
+            grad.addColorStop(0, '#0D1527'); grad.addColorStop(0.6, '#111D36'); grad.addColorStop(1, '#070B14');
+        } else if (currentBgMode === 'SUCCESS') {
+            grad.addColorStop(0, '#1A1A05'); grad.addColorStop(0.6, '#2E2405'); grad.addColorStop(1, '#0A0B02');
+        } else {
+            grad.addColorStop(0, '#090D16'); grad.addColorStop(0.6, '#161E2E'); grad.addColorStop(1, '#060910');
+        }
+        bgCtx.fillStyle = grad;
+        bgCtx.fillRect(0, 0, w, h);
+
+        // Ambient Background Grid
+        bgCtx.strokeStyle = "rgba(30, 41, 59, 0.35)";
+        bgCtx.lineWidth = 1;
+        for (let x = 0; x < w; x += 40) {
+            bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, h); bgCtx.stroke();
+        }
+        for (let y = 0; y < h; y += 40) {
+            bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); bgCtx.stroke();
+        }
+
+        // Mode specific animations
+        if (currentBgMode === 'HOME') {
+            // Subtle Ashoka Chakra Element
+            bgCtx.save();
+            bgCtx.translate(cx, cy);
+            bgCtx.rotate(bgAngle * 0.25);
+            bgCtx.strokeStyle = `rgba(255, 153, 51, ${0.05 + pulseVal * 0.05})`;
+            bgCtx.lineWidth = 2;
+            bgCtx.beginPath();
+            bgCtx.arc(0, 0, w * 0.45, 0, Math.PI * 2);
+            bgCtx.stroke();
+            for (let i = 0; i < 24; i++) {
+                const a = (i * 15 * Math.PI) / 180;
+                bgCtx.beginPath();
+                bgCtx.moveTo(0, 0);
+                bgCtx.lineTo(Math.cos(a) * w * 0.45, Math.sin(a) * w * 0.45);
+                bgCtx.stroke();
+            }
+            bgCtx.restore();
+        } else if (currentBgMode === 'MAP') {
+            // Radar pulse over player location
+            bgCtx.strokeStyle = `rgba(255, 153, 51, ${0.4 - pulseVal * 0.3})`;
+            bgCtx.lineWidth = 2;
+            bgCtx.beginPath();
+            bgCtx.arc(cx, cy - 30, 20 + pulseVal * 60, 0, Math.PI * 2);
+            bgCtx.stroke();
+        } else if (currentBgMode === 'ELECTION') {
+            // Swaying vote indicator waves
+            bgCtx.strokeStyle = `rgba(255, 153, 51, ${0.12 + pulseVal * 0.1})`;
+            bgCtx.lineWidth = 2;
+            for (let i = 0; i < 4; i++) {
+                const yb = h * 0.25 + i * 110;
+                bgCtx.beginPath();
+                bgCtx.moveTo(0, yb);
+                for (let x = 0; x < w; x += 15) {
+                    bgCtx.lineTo(x, yb + Math.sin(x * 0.02 + waveOffset + i) * 12);
+                }
+                bgCtx.stroke();
+            }
+        } else if (currentBgMode === 'CAMPAIGN') {
+            // Dynamic rally stage spotlight cones
+            const gradSpot = bgCtx.createRadialGradient(cx, 0, 10, cx, h, w * 0.9);
+            gradSpot.addColorStop(0, `rgba(255, 153, 51, ${0.08 + pulseVal * 0.06})`);
+            gradSpot.addColorStop(1, 'transparent');
+            bgCtx.fillStyle = gradSpot;
+            bgCtx.beginPath();
+            bgCtx.moveTo(cx - 30, 0);
+            bgCtx.lineTo(cx + 30, 0);
+            bgCtx.lineTo(w, h);
+            bgCtx.lineTo(0, h);
+            bgCtx.fill();
+        } else if (currentBgMode === 'PRIME_MINISTER') {
+            // Parliament Dome Silhouette & GDP Trend line
+            bgCtx.strokeStyle = "rgba(245, 158, 11, 0.08)";
+            bgCtx.lineWidth = 3;
+            bgCtx.beginPath();
+            bgCtx.arc(cx, cy * 0.75, w * 0.35, Math.PI, 0);
+            bgCtx.stroke();
+        } else if (currentBgMode === 'CRISIS_FLOOD') {
+            // Water ripples
+            bgCtx.strokeStyle = "rgba(56, 189, 248, 0.2)";
+            bgCtx.lineWidth = 2;
+            for (let i = 0; i < 3; i++) {
+                const yb = h * 0.6 + i * 60;
+                bgCtx.beginPath();
+                bgCtx.moveTo(0, yb);
+                for (let x = 0; x < w; x += 15) {
+                    bgCtx.lineTo(x, yb + Math.sin(x * 0.03 + waveOffset * 2 + i) * 8);
+                }
+                bgCtx.stroke();
+            }
+        }
+
+        // Floating Particles
+        bgParticles.forEach(p => {
+            p.y -= p.vy;
+            p.x += p.vx;
+            if (p.y < 0) { p.y = h; p.x = Math.random() * w; }
+            if (p.x < 0) p.x = w;
+            if (p.x > w) p.x = 0;
+
+            bgCtx.fillStyle = p.color;
+            bgCtx.globalAlpha = p.alpha;
+            bgCtx.beginPath();
+            bgCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            bgCtx.fill();
+            bgCtx.globalAlpha = 1.0;
+        });
+
+        requestAnimationFrame(renderDynamicBackground);
+    }
+
+    // Trigger Mode Update on Screen Transition
+    const originalShowScreen = showScreen;
+    showScreen = function(id) {
+        originalShowScreen(id);
+        if (id === 'screen-home') currentBgMode = 'HOME';
+        else if (id === 'screen-map') currentBgMode = 'MAP';
+        else if (id === 'screen-campaign') currentBgMode = 'CAMPAIGN';
+        else if (id === 'screen-parliament' || id === 'screen-pm') currentBgMode = 'PRIME_MINISTER';
+        else if (id === 'screen-crisis') currentBgMode = 'CRISIS_FLOOD';
+        else currentBgMode = 'HOME';
+    };
+
+    setTimeout(() => {
+        resizeBgCanvas();
+        renderDynamicBackground();
+    }, 100);
 </script>
 </body>
 </html>
