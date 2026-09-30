@@ -137,13 +137,14 @@ fun RashtraNitiMainApp(viewModel: RashtraNitiViewModel) {
                             onSelectChoice = { choice -> viewModel.resolveCrisis(choice) }
                         )
                     }
-                    "ELECTION_DAY" -> state.lastElectionResult?.let { result ->
-                        ElectionResultsView(
-                            state = state,
-                            result = result,
-                            onContinue = { viewModel.navigateTo("MAIN_HOME") }
-                        )
-                    }
+                    "ELECTION_DAY" -> SevenDayElectionCampaignScreen(
+                        state = state,
+                        isHindi = state.isHindi,
+                        onCompleteElection = { scorecard ->
+                            // Update player state & ranking
+                        },
+                        onBackToHome = { viewModel.navigateTo("MAIN_HOME") }
+                    )
                     else -> MainHomeDashboardView(
                         state = state,
                         onNavigate = { viewModel.navigateTo(it) },

@@ -550,8 +550,8 @@
                     स्थानीय निर्वाचन क्षेत्र में जनविश्वास 60% के पार ले जाएं और प्रथम चुनाव जीतें।
                 </p>
                 <div style="margin-top: 12px;">
-                    <button class="btn-green" onclick="runElectionDay()" id="btn-conduct-election">
-                        <i class="fa-solid fa-check-to-slot"></i> <span id="lbl-vote-now">मतदान दिवस शुरू करें (Conduct Polling)</span>
+                    <button class="btn-green" onclick="startSevenDayCampaign()" id="btn-conduct-election">
+                        <i class="fa-solid fa-check-to-slot"></i> <span id="lbl-vote-now">7-दिवसीय चुनावी महासंग्राम शुरू करें (Start 7-Day Campaign)</span>
                     </button>
                 </div>
             </div>
@@ -827,6 +827,38 @@
             <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">पार्टी नेतृत्व व पदाधिकारी रोस्टर</h3>
             <div id="party-mgmt-members-list" style="display: flex; flex-direction: column; gap: 10px;">
                 <!-- Dynamically rendered -->
+            </div>
+        </div>
+
+        <!-- 13. 7-Day Election Campaign & Live Vote Counting Screen -->
+        <div class="screen" id="screen-7day-campaign">
+            <!-- 7-Day Header & Step Bar -->
+            <div class="card" style="border-left: 4px solid var(--saffron);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="font-size: 15px; font-weight: 800; color: var(--saffron);" id="7d-constituency-title">वाराणसी उत्तर</span>
+                        <div style="font-size: 11px; color: var(--text-muted);">7-दिवसीय सघन चुनावी महासंग्राम • मतदाता: 4,20,000</div>
+                    </div>
+                    <div style="background: rgba(255, 153, 51, 0.2); border: 1px solid var(--saffron); color: var(--saffron); padding: 4px 8px; border-radius: 8px; font-weight: 800; font-size: 12px;" id="7d-day-indicator">
+                        दिन 1/7
+                    </div>
+                </div>
+
+                <!-- 7-Day Step Indicator -->
+                <div style="display: flex; gap: 4px; margin-top: 10px;" id="7d-step-bar">
+                    <div style="flex: 1; height: 6px; border-radius: 3px; background: var(--saffron);"></div>
+                    <div style="flex: 1; height: 6px; border-radius: 3px; background: #1E293B;"></div>
+                    <div style="flex: 1; height: 6px; border-radius: 3px; background: #1E293B;"></div>
+                    <div style="flex: 1; height: 6px; border-radius: 3px; background: #1E293B;"></div>
+                    <div style="flex: 1; height: 6px; border-radius: 3px; background: #1E293B;"></div>
+                    <div style="flex: 1; height: 6px; border-radius: 3px; background: #1E293B;"></div>
+                    <div style="flex: 1; height: 6px; border-radius: 3px; background: #1E293B;"></div>
+                </div>
+            </div>
+
+            <!-- Dynamic Day Content Container -->
+            <div id="7d-dynamic-day-content">
+                <!-- Injected based on day 1 to 7 -->
             </div>
         </div>
     </div>
@@ -1405,6 +1437,331 @@
         renderPartyMgmtRoster();
         addNotification(`🌟 नए अनुभवी नेता '${randomName}' पार्टी में शामिल हुए!`);
         alert(state.isHindi ? `स्वागत है! '${randomName}' को गुजरात राज्य प्रभारी के रूप में पार्टी में शामिल किया गया।` : `Recruited! '${randomName}' joined the leadership team.`);
+    }
+
+    // 7-DAY ELECTION CAMPAIGN & RISK ENGINE
+    state.campaign7D = {
+        currentDay: 1,
+        constituency: "वाराणसी उत्तर",
+        totalPopulation: 420000,
+        strategy: null,
+        groundAction: null,
+        mediaAction: null,
+        oppReaction: "",
+        debateScore: 0,
+        budgetSpent: 0,
+        playerSupport: 46,
+        opponentSupport: 45,
+        trustScore: 54,
+        groundScore: 50,
+        mediaScore: 55,
+        scorecard: null
+    };
+
+    function startSevenDayCampaign() {
+        state.campaign7D.currentDay = 1;
+        state.campaign7D.budgetSpent = 0;
+        state.campaign7D.debateScore = 0;
+        state.campaign7D.scorecard = null;
+        playBeep(520, 'sine', 0.2);
+        showScreen('screen-7day-campaign');
+        render7DayPhase();
+    }
+
+    function render7DayPhase() {
+        const d = state.campaign7D.currentDay;
+        document.getElementById('7d-day-indicator').innerText = `दिन ${d}/7`;
+
+        // Update step bar
+        const bars = document.getElementById('7d-step-bar').children;
+        for (let i = 0; i < bars.length; i++) {
+            if (i < d - 1) bars[i].style.background = 'var(--green)';
+            else if (i === d - 1) bars[i].style.background = 'var(--saffron)';
+            else bars[i].style.background = '#1E293B';
+        }
+
+        const container = document.getElementById('7d-dynamic-day-content');
+        if (!container) return;
+
+        if (d === 1) {
+            container.innerHTML = `
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">दिन 1: मुख्य चुनावी रणनीति चुनें</h3>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">प्राथमिक घोषणापत्र व नीति का चयन करें:</p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div class="card" style="cursor: pointer;" onclick="selectDay1('युवा व रोजगार केंद्रित', 8, 4)">
+                        <div style="font-weight: 700; color: #FFF; font-size: 13px;">1. युवा एवं रोजगार क्रांति (Youth & Jobs)</div>
+                        <div style="font-size: 11px; color: var(--gold); margin-top: 4px;">युवा समर्थन: +8% | जनविश्वास: +4%</div>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="selectDay1('विकास व उद्योग', 5, 6)">
+                        <div style="font-weight: 700; color: #FFF; font-size: 13px;">2. विकास, व्यापार व उद्योग (Industrial Growth)</div>
+                        <div style="font-size: 11px; color: var(--green); margin-top: 4px;">शहरी समर्थन: +7% | जनविश्वास: +5%</div>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="selectDay1('कृषि व किसान कल्याण', 2, 8)">
+                        <div style="font-weight: 700; color: #FFF; font-size: 13px;">3. कृषि, सिंचाई व किसान आय (Farmer Welfare)</div>
+                        <div style="font-size: 11px; color: var(--saffron); margin-top: 4px;">ग्रामीण समर्थन: +9% | जनविश्वास: +6%</div>
+                    </div>
+                </div>
+            `;
+        } else if (d === 2) {
+            container.innerHTML = `
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">दिन 2: ज़मीनी जनसंपर्क व रैलियां</h3>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">अभियान गतिविधि चुनें (कोष व ऊर्जा खर्च):</p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div class="card" style="cursor: pointer;" onclick="selectDay2('घर-घर जनसंपर्क', 15000, 7, 3)">
+                        <div style="display: flex; justify-content: space-between;"><b style="color: #FFF;">घर-घर सघन जनसंपर्क</b><span style="color: var(--gold);">₹15k</span></div>
+                        <div style="font-size: 11px; color: var(--green); margin-top: 4px;">जनविश्वास: +7% | बूथ जुड़ाव: उच्च</div>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="selectDay2('विशाल जनसभा व रैली', 60000, 4, 9)">
+                        <div style="display: flex; justify-content: space-between;"><b style="color: #FFF;">विशाल चुनावी महा-रैली</b><span style="color: var(--gold);">₹60k</span></div>
+                        <div style="font-size: 11px; color: var(--saffron); margin-top: 4px;">दृश्यता (Visibility): +9% | मीडिया प्रभाव: उच्च</div>
+                    </div>
+                </div>
+            `;
+        } else if (d === 3) {
+            container.innerHTML = `
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">दिन 3: मीडिया व डिजिटल अभियान</h3>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">मीडिया चैनल चुनें:</p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div class="card" style="cursor: pointer;" onclick="selectDay3('प्राइम टाइम टीवी इंटरव्यू', 30000, 8)">
+                        <div style="display: flex; justify-content: space-between;"><b style="color: #FFF;">प्राइम टाइम टीवी इंटरव्यू</b><span style="color: var(--gold);">₹30k</span></div>
+                        <div style="font-size: 11px; color: #60A5FA; margin-top: 4px;">मीडिया पहुंच: 8.5/10 | साख: +6%</div>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="selectDay3('प्रेस वार्ता एवं घोषणापत्र विमोचन', 20000, 7)">
+                        <div style="display: flex; justify-content: space-between;"><b style="color: #FFF;">प्रेस वार्ता व घोषणापत्र</b><span style="color: var(--gold);">₹20k</span></div>
+                        <div style="font-size: 11px; color: var(--green); margin-top: 4px;">विश्वसनीयता: +8% | खर्च सीमित</div>
+                    </div>
+                </div>
+            `;
+        } else if (d === 4) {
+            container.innerHTML = `
+                <div class="card" style="background: rgba(30, 27, 75, 0.9); border: 1px solid var(--saffron);">
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--saffron); font-weight: 800; font-size: 13px;">
+                        <i class="fa-solid fa-shield-halved fa-lg"></i> दिन 4: विपक्षी दल का जवाबी हमला
+                    </div>
+                    <p style="font-size: 13px; color: #FFF; margin-top: 10px; line-height: 1.5;">
+                        ${state.campaign7D.oppReaction}
+                    </p>
+                    <button class="btn-primary" onclick="advanceToDay(5)" style="margin-top: 14px; padding: 10px;">
+                        रणनीतिक मुकाबला करें व दिन 5 पर बढ़ें <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
+        } else if (d === 5) {
+            container.innerHTML = `
+                <div class="card" style="background: rgba(69, 10, 10, 0.9); border: 1px solid var(--red);">
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--red); font-weight: 800; font-size: 13px;">
+                        <i class="fa-solid fa-triangle-exclamation fa-lg"></i> दिन 5: अचानक स्थानीय संकट
+                    </div>
+                    <p style="font-size: 13px; color: #FFF; margin-top: 8px;">
+                        क्षेत्र के 3 प्रमुख वार्डों में भारी बारिश से जलभराव व विद्युत आपूर्ति ठप हो गई है।
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                        <button class="btn-green" onclick="resolveDay5(1)" style="font-size: 12px; padding: 10px;">
+                            तुरंत ₹20k राहत कोष व कार्यकर्ताओं को सेवा में लगाएं (विश्वास +10%)
+                        </button>
+                        <button class="btn-secondary" onclick="resolveDay5(2)" style="font-size: 12px; padding: 10px;">
+                            प्रशासन पर दबाव बनाएं और रैलियों पर ध्यान रखें
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else if (d === 6) {
+            container.innerHTML = `
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--gold);">दिन 6: निर्णायक लाइव टीवी डिबेट</h3>
+                <div class="card" style="margin-bottom: 12px;">
+                    <span style="font-size: 11px; color: var(--saffron); font-weight: 800;">मुद्दा: स्थानीय रोजगार व आर्थिक खाका</span>
+                    <p style="font-size: 14px; font-weight: 700; color: #FFF; margin-top: 6px;">
+                        विपक्ष: "आपकी पार्टी के पास युवाओं के रोजगार की कोई ठोस वित्तीय योजना नहीं है। आप क्या करेंगे?"
+                    </p>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn-secondary" style="text-align: left; padding: 10px; font-size: 12px;" onclick="answerDebate(1)">
+                        1. स्थानीय एमएसएमई हेतु ₹500 Cr इंसेंटिव व 3 कौशल विकास केंद्र स्थापित करेंगे। (ठोस तथ्य)
+                    </button>
+                    <button class="btn-secondary" style="text-align: left; padding: 10px; font-size: 12px;" onclick="answerDebate(2)">
+                        2. विपक्षी दल के पुराने घोटालों पर आक्रामक हमला बोलेंगे। (राजनीतिक भाषण)
+                    </button>
+                </div>
+            `;
+        } else if (d === 7) {
+            if (!state.campaign7D.scorecard) {
+                container.innerHTML = `
+                    <div class="card" style="text-align: center; padding: 24px;">
+                        <i class="fa-solid fa-check-to-slot fa-3x" style="color: var(--green); margin-bottom: 12px;"></i>
+                        <h2 style="font-size: 20px; font-weight: 800; color: #FFF;">दिन 7: मतदान दिवस एवं मतगणना</h2>
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 8px 0 16px 0;">
+                            ईवीएम मशीनों से मतों की 4-राउंड सस्पेंसफुल गिनती शुरू करें।
+                        </p>
+                        <button class="btn-green" onclick="runLiveEVMCounting()" style="padding: 12px; font-size: 15px;">
+                            <i class="fa-solid fa-play"></i> EVM मतगणना शुरू करें (Start Live Count)
+                        </button>
+                    </div>
+                `;
+            } else {
+                renderScorecardView();
+            }
+        }
+    }
+
+    function selectDay1(strat, yBoost, trustBoost) {
+        state.campaign7D.strategy = strat;
+        state.campaign7D.trustScore += trustBoost;
+        state.campaign7D.playerSupport += 3.5;
+        playBeep(600, 'sine', 0.15);
+        state.campaign7D.currentDay = 2;
+        render7DayPhase();
+    }
+
+    function selectDay2(action, cost, trust, vis) {
+        if (state.party.funds < cost) {
+            alert(state.isHindi ? "अपर्याप्त पार्टी कोष!" : "Insufficient party funds!");
+            return;
+        }
+        state.party.funds -= cost;
+        state.campaign7D.budgetSpent += cost;
+        state.campaign7D.trustScore += trust;
+        state.campaign7D.groundScore += vis * 5;
+        playBeep(680, 'sine', 0.15);
+        state.campaign7D.currentDay = 3;
+        render7DayPhase();
+    }
+
+    function selectDay3(action, cost, reach) {
+        if (state.party.funds < cost) {
+            alert(state.isHindi ? "अपर्याप्त पार्टी कोष!" : "Insufficient party funds!");
+            return;
+        }
+        state.party.funds -= cost;
+        state.campaign7D.budgetSpent += cost;
+        state.campaign7D.mediaScore += reach * 4;
+        state.campaign7D.oppReaction = "विपक्षी दल ने आपकी रैलियों व बयानों को चुनौती देते हुए ग्रामीण बूथों पर सघन प्रचार तेज किया।";
+        playBeep(720, 'sine', 0.15);
+        state.campaign7D.currentDay = 4;
+        render7DayPhase();
+    }
+
+    function advanceToDay(d) {
+        state.campaign7D.currentDay = d;
+        playBeep(580, 'sine', 0.15);
+        render7DayPhase();
+    }
+
+    function resolveDay5(choice) {
+        if (choice === 1) {
+            state.campaign7D.trustScore += 10;
+            state.party.funds = Math.max(0, state.party.funds - 20000);
+            addNotification("दिन 5: संकट में त्वरित राहत कार्य से जनता में पार्टी की साख बढ़ी!");
+        } else {
+            state.campaign7D.trustScore -= 4;
+        }
+        playBeep(650, 'sine', 0.15);
+        state.campaign7D.currentDay = 6;
+        render7DayPhase();
+    }
+
+    function answerDebate(choice) {
+        if (choice === 1) {
+            state.campaign7D.debateScore = 9;
+            state.campaign7D.trustScore += 6;
+            alert(state.isHindi ? "उत्कृष्ट डिबेट प्रदर्शन! तथ्यपरक उत्तर से जनता का समर्थन बढ़ा।" : "Strong debate performance!");
+        } else {
+            state.campaign7D.debateScore = 5;
+            alert(state.isHindi ? "औसत बहस! विपक्षी हमलों का ठोस उत्तर नहीं दे सके।" : "Average debate response.");
+        }
+        playBeep(750, 'sine', 0.2);
+        state.campaign7D.currentDay = 7;
+        render7DayPhase();
+    }
+
+    function runLiveEVMCounting() {
+        playBeep(850, 'square', 0.3);
+        const playerWin = state.campaign7D.trustScore > 50 && (state.campaign7D.debateScore >= 8 || state.campaign7D.groundScore >= 60);
+
+        const totalVotes = 275000;
+        let pVotes = playerWin ? 142300 : 129400;
+        let oVotes = playerWin ? 124800 : 138100;
+        let othVotes = totalVotes - pVotes - oVotes;
+
+        const pPct = ((pVotes / totalVotes) * 100).toFixed(1);
+        const oPct = ((oVotes / totalVotes) * 100).toFixed(1);
+        const margin = Math.abs(pVotes - oVotes);
+
+        state.campaign7D.scorecard = {
+            isWin: playerWin,
+            pVotes: pVotes,
+            oVotes: oVotes,
+            pPct: pPct,
+            oPct: oPct,
+            margin: margin,
+            strategyScore: 78,
+            trustScore: state.campaign7D.trustScore,
+            mediaScore: state.campaign7D.mediaScore,
+            groundScore: state.campaign7D.groundScore,
+            debateScore: state.campaign7D.debateScore * 10,
+            opponentScore: 72,
+            reason: playerWin ? "ठोस डिबेट प्रदर्शन, समय पर आपदा राहत व घर-घर जनसंपर्क ने निर्णायक विजय दिलाई।" : "विपक्ष की ग्रामीण बूथों पर मजबूत पकड़ और डिबेट में कमजोर रणनीति से हार का सामना करना पड़ा।"
+        };
+
+        if (playerWin) {
+            state.player.levelIndex = 10;
+            state.player.publicTrust = Math.min(100, state.player.publicTrust + 15);
+        } else {
+            state.player.publicTrust = Math.max(20, state.player.publicTrust - 3);
+        }
+        updateHUD();
+        renderScorecardView();
+    }
+
+    function renderScorecardView() {
+        const card = state.campaign7D.scorecard;
+        const container = document.getElementById('7d-dynamic-day-content');
+        container.innerHTML = `
+            <div class="card" style="text-align: center; border-left: 4px solid ${card.isWin ? 'var(--green)' : 'var(--saffron)'};">
+                <i class="fa-solid ${card.isWin ? 'fa-trophy' : 'fa-handshake-angle'} fa-3x" style="color: ${card.isWin ? 'var(--gold)' : 'var(--saffron)'}; margin-bottom: 8px;"></i>
+                <h2 style="font-size: 20px; font-weight: 800; color: ${card.isWin ? 'var(--green)' : 'var(--gold)'};">
+                    ${card.isWin ? "शानदार ऐतिहासिक विजय!" : "चुनावी परिणाम — राजनीतिक यात्रा जारी"}
+                </h2>
+                <p style="font-size: 13px; color: #FFF; margin-top: 4px;">
+                    ${card.isWin ? `आप <b>${card.margin.toLocaleString()}</b> मतों के अंतर से विजयी हुए!` : `विपक्ष <b>${card.margin.toLocaleString()}</b> मतों से आगे रहा।`}
+                </p>
+
+                <div style="background: rgba(15,23,42,0.8); padding: 12px; border-radius: 10px; margin: 12px 0;">
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700;">
+                        <span style="color: var(--saffron);">${state.party.code} (आप)</span>
+                        <span style="color: #FFF;">${card.pPct}% (${card.pVotes.toLocaleString()} मत)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); margin-top: 6px;">
+                        <span>विपक्ष (Opposition)</span>
+                        <span style="color: #FFF;">${card.oPct}% (${card.oVotes.toLocaleString()} मत)</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">चुनावी प्रदर्शन विश्लेषण (Report Card)</h3>
+            <div class="card" style="font-size: 12px; display: flex; flex-direction: column; gap: 6px;">
+                <div><span style="color: var(--text-muted);">रणनीति अंक:</span> <b>${card.strategyScore}/100</b></div>
+                <div><span style="color: var(--text-muted);">जनविश्वास:</span> <b style="color: var(--green);">${card.trustScore}/100</b></div>
+                <div><span style="color: var(--text-muted);">मीडिया प्रदर्शन:</span> <b style="color: #60A5FA;">${card.mediaScore}/100</b></div>
+                <div><span style="color: var(--text-muted);">ग्राउंड अभियान:</span> <b style="color: var(--saffron);">${card.groundScore}/100</b></div>
+                <div><span style="color: var(--text-muted);">डिबेट स्कोर:</span> <b>${card.debateScore}/100</b></div>
+                <div style="border-top: 1px solid var(--dark-border); padding-top: 6px; color: #FFF; line-height: 1.4;">
+                    <b>निष्कर्ष:</b> ${card.reason}
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="finish7DayElection(${card.isWin})" style="padding: 12px; font-size: 14px;">
+                ${card.isWin ? "सरकार गठन व पीएम कक्ष में प्रवेश <i class='fa-solid fa-crown'></i>" : "विपक्ष के नेता के रूप में संगठन मजबूत करें <i class='fa-solid fa-arrow-right'></i>"}
+            </button>
+        `;
+    }
+
+    function finish7DayElection(isWin) {
+        if (isWin) {
+            switchNav('screen-pm');
+        } else {
+            switchNav('screen-home');
+            addNotification("हार से सीखें, कार्यकर्ताओं को प्रशिक्षित करें और अगले चुनाव हेतु संगठन मजबूत करें!");
+        }
     }
 
     function initMapCanvas() {
