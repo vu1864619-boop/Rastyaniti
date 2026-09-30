@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">RashtraNiti</string>
+    <string name="tagline">From Common Citizen to Prime Minister</string>
+    <string name="opening_quote">This nation is yours. Now the choice is yours.</string>
+    <string name="opening_question">Can a common citizen become the Prime Minister of the country?</string>
+    <string name="btn_start_journey">Start Journey</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_map">Map</string>
+    <string name="nav_party">Party</string>
+    <string name="nav_campaign">Campaign</string>
+    <string name="nav_parliament">Parliament</string>
+    <string name="nav_government">Government</string>
+    <string name="nav_media">Media</string>
+    <string name="nav_quiz">Quiz</string>
+    <string name="nav_multiplayer">Multiplayer</string>
+</resources>

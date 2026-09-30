@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>राष्ट्रनीति (RashtraNiti) - एक आम आदमी से प्रधानमंत्री तक</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;600;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --saffron: #FF9933;
+            --white: #FFFFFF;
+            --green: #138808;
+            --navy: #0F172A;
+            --dark-bg: #090D16;
+            --dark-card: #161E2E;
+            --dark-border: #1E293B;
+            --gold: #F59E0B;
+            --red: #EF4444;
+            --blue: #3B82F6;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Mukta', 'Outfit', sans-serif;
+            background-color: #030712;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Mobile Device Container Frame */
+        #mobile-frame {
+            width: 100vw;
+            max-width: 440px;
+            height: 100vh;
+            max-height: 920px;
+            background-color: var(--dark-bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 20px rgba(255, 153, 51, 0.15);
+            border-radius: 28px;
+            border: 4px solid #1E293B;
+            overflow: hidden;
+        }
+
+        @media (max-width: 480px) {
+            #mobile-frame {
+                border-radius: 0;
+                border: none;
+                max-height: 100vh;
+            }
+        }
+
+        /* Header / HUD */
+        header {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.85));
+            border-bottom: 1px solid var(--dark-border);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .player-hud-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--saffron);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .player-rank {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .resource-pill-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .hud-pill {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--dark-border);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .lang-btn {
+            background: var(--dark-card);
+            border: 1px solid var(--saffron);
+            color: var(--saffron);
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .lang-btn:hover {
+            background: var(--saffron);
+            color: #000;
+        }
+
+        /* Main View Container */
+        #screen-container {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            padding-bottom: 75px;
+        }
+
+        #screen-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        #screen-container::-webkit-scrollbar-thumb {
+            background: var(--dark-border);
+            border-radius: 4px;
+        }
+
+        .screen {
+            display: none;
+            padding: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Bottom Nav */
+        nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(15, 23, 42, 0.96);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--dark-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 11px;
+            gap: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+        }
+
+        .nav-item.active {
+            color: var(--saffron);
+            font-weight: 700;
+        }
+
+        .nav-item.active i {
+            transform: scale(1.15);
+        }
+
+        /* Cards & Components */
+        .card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF9933, #EA580C);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
+            width: 100%;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            color: var(--text-main);
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #138808, #16A34A);
+            color: #FFF;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, #DC2626, #991B1B);
+            color: #FFF;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .stat-box {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--dark-border);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .stat-val {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 2px;
+        }
+
+        /* Interactive Canvas Map */
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            background: #0B132B;
+            border-radius: 16px;
+            border: 1px solid var(--dark-border);
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        #mapCanvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-overlay-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .map-zoom-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(15, 23, 42, 0.85);
+            color: var(--text-main);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .ticker-item {
+            background: rgba(15, 23, 42, 0.6);
+            border-left: 3px solid var(--saffron);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        /* Opening Screen Styling */
+        #screen-cinematic {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            background: radial-gradient(circle at center, #1E1B4B 0%, #090D16 100%);
+            padding: 24px;
+        }
+
+        .chakra-wheel {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid var(--saffron);
+            border-top-color: var(--white);
+            border-bottom-color: var(--green);
+            animation: spin 16s linear infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .form-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #0B0F19;
+            border: 1px solid var(--dark-border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--saffron);
+        }
+
+        /* Crisis Alert Modal */
+        .crisis-banner {
+            background: linear-gradient(135deg, #7F1D1D, #450A0A);
+            border: 1px solid var(--red);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="mobile-frame">
+    <!-- Header HUD -->
+    <header id="top-hud" style="display: none;">
+        <div class="player-hud-info">
+            <div class="player-name">
+                <i class="fa-solid fa-user-tie"></i>
+                <span id="hud-player-name">आलोक शर्मा</span>
+            </div>
+            <div class="player-rank" id="hud-player-rank">आम नागरिक (Citizen)</div>
+        </div>
+
+        <div class="resource-pill-group">
+            <div class="hud-pill" title="पार्टी कोष">
+                <i class="fa-solid fa-vault" style="color: var(--gold);"></i>
+                <span id="hud-party-funds">₹5.0L</span>
+            </div>
+            <div class="hud-pill" title="जनविश्वास">
+                <i class="fa-solid fa-heart" style="color: var(--red);"></i>
+                <span id="hud-public-trust">52%</span>
+            </div>
+            <button class="lang-btn" onclick="toggleLanguage()" id="btn-lang-toggle">EN</button>
+        </div>
+    </header>
+
+    <!-- Content Screens -->
+    <div id="screen-container">
+
+        <!-- 1. Opening Cinematic Screen -->
+        <div class="screen active" id="screen-cinematic">
+            <div class="chakra-wheel">
+                <i class="fa-solid fa-landmark-dome fa-2x" style="color: var(--saffron);"></i>
+            </div>
+            <h1 style="font-size: 38px; font-weight: 800; color: var(--saffron); letter-spacing: 2px;">राष्ट्रनीति</h1>
+            <p style="font-size: 15px; color: var(--gold); font-weight: 600; margin-bottom: 24px;" id="txt-tagline">“एक आम आदमी से प्रधानमंत्री तक”</p>
+
+            <div class="card" style="background: rgba(22, 30, 46, 0.85); text-align: center; margin-bottom: 24px;">
+                <p style="font-size: 18px; font-weight: 700; color: #FFF; line-height: 1.5;" id="txt-quote">
+                    यह देश आपका है।<br>अब फैसला आपका है।
+                </p>
+                <div style="height: 1px; background: var(--dark-border); margin: 12px 0;"></div>
+                <p style="font-size: 14px; color: var(--text-muted);" id="txt-question">
+                    क्या एक आम नागरिक देश का प्रधानमंत्री बन सकता है?
+                </p>
+            </div>
+
+            <button class="btn-primary" onclick="startJourney()" id="btn-start">
+                <i class="fa-solid fa-flag"></i> <span id="lbl-start">यात्रा शुरू करें</span>
+            </button>
+        </div>
+
+        <!-- 2. Player Creation Screen -->
+        <div class="screen" id="screen-player-create">
+            <h2 style="font-size: 22px; color: var(--saffron); font-weight: 800; margin-bottom: 4px;" id="txt-pc-title">प्रत्याशी निर्माण</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;" id="txt-pc-sub">अपनी राजनीतिक पहचान व गृह क्षेत्र तय करें</p>
+
+            <div class="card">
+                <div class="form-group">
+                    <label class="form-label" id="lbl-pc-name">प्रत्याशी का पूरा नाम</label>
+                    <input type="text" class="form-input" id="inp-player-name" value="आलोक शर्मा">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="lbl-pc-age">आयु (वर्ष)</label>
+                    <input type="number" class="form-input" id="inp-player-age" value="32">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="lbl-pc-state">राज्य</label>
+                    <input type="text" class="form-input" id="inp-player-state" value="उत्तर प्रदेश">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="lbl-pc-dist">गृह जिला</label>
+                    <input type="text" class="form-input" id="inp-player-dist" value="वाराणसी">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="lbl-pc-const">निर्वाचन क्षेत्र (Constituency)</label>
+                    <input type="text" class="form-input" id="inp-player-const" value="वाराणसी उत्तर">
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="submitPlayerCreation()" id="btn-pc-next">
+                अगला: पार्टी का गठन करें <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- 3. Party Creation Screen -->
+        <div class="screen" id="screen-party-create">
+            <h2 style="font-size: 22px; color: var(--saffron); font-weight: 800; margin-bottom: 4px;" id="txt-party-title">पार्टी गठन</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;" id="txt-party-sub">काल्पनिक पार्टी का नाम, प्रतीक व सिद्धांत तय करें</p>
+
+            <div class="card">
+                <div class="form-group">
+                    <label class="form-label" id="lbl-party-name">पार्टी का पूरा नाम</label>
+                    <input type="text" class="form-input" id="inp-party-name" value="जन स्वाभिमान पार्टी">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="lbl-party-code">संक्षिप्त कोड (Acronym)</label>
+                    <input type="text" class="form-input" id="inp-party-code" value="JSP">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="lbl-party-slogan">पार्टी का मुख्य नारा (Slogan)</label>
+                    <input type="text" class="form-input" id="inp-party-slogan" value="न्याय, विकास और राष्ट्र निर्माण">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="lbl-party-prio">प्राथमिक चुनावी मुद्दा</label>
+                    <select class="form-input" id="inp-party-prio">
+                        <option value="शिक्षा एवं रोजगार">शिक्षा एवं रोजगार (Education & Jobs)</option>
+                        <option value="कृषि एवं किसान कल्याण">कृषि एवं किसान कल्याण (Agri & Farmers)</option>
+                        <option value="स्वास्थ्य एवं चिकित्सा सुधार">स्वास्थ्य एवं चिकित्सा सुधार (Healthcare)</option>
+                        <option value="सड़क व बुनियादी ढांचा">सड़क व बुनियादी ढांचा (Infrastructure)</option>
+                        <option value="तकनीक व डिजिटल भारत">तकनीक व डिजिटल भारत (Tech & AI)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="submitPartyCreation()" id="btn-party-finish">
+                पंजीकरण पूर्ण करें व देश में प्रवेश करें <i class="fa-solid fa-check"></i>
+            </button>
+        </div>
+
+        <!-- 4. Main Home Dashboard -->
+        <div class="screen" id="screen-home">
+            <!-- Objective Card -->
+            <div class="card" style="border-left: 4px solid var(--saffron);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11px; font-weight: 800; color: var(--saffron);" id="lbl-cur-obj">वर्तमान उद्देश्य</span>
+                    <span style="background: rgba(239, 68, 68, 0.2); color: var(--red); font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 6px;" id="txt-countdown">चुनाव: 27 दिन शेष</span>
+                </div>
+                <p style="font-size: 14px; font-weight: 700; color: #FFF; margin-top: 6px;" id="txt-objective-desc">
+                    स्थानीय निर्वाचन क्षेत्र में जनविश्वास 60% के पार ले जाएं और प्रथम चुनाव जीतें।
+                </p>
+                <div style="margin-top: 12px;">
+                    <button class="btn-green" onclick="runElectionDay()" id="btn-conduct-election">
+                        <i class="fa-solid fa-check-to-slot"></i> <span id="lbl-vote-now">मतदान दिवस शुरू करें (Conduct Polling)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <span class="stat-label" id="lbl-pop">पार्टी लोकप्रियता</span>
+                    <span class="stat-val" style="color: var(--saffron);" id="val-popularity">42%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label" id="lbl-trust">जनता का विश्वास</span>
+                    <span class="stat-val" style="color: var(--red);" id="val-trust">52%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label" id="lbl-workers">सक्रिय कार्यकर्ता</span>
+                    <span class="stat-val" style="color: var(--blue);" id="val-workers">240</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label" id="lbl-energy">ऊर्जा (Energy)</span>
+                    <span class="stat-val" style="color: var(--gold);" id="val-energy">100⚡</span>
+                </div>
+            </div>
+
+            <!-- Live Actions -->
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;" id="lbl-quick-actions">रणनीतिक कार्य</h3>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px;">
+                <button class="btn-secondary" onclick="switchNav('screen-campaign')">
+                    <i class="fa-solid fa-bullhorn" style="color: var(--saffron);"></i> <span id="lbl-act-camp">प्रचार अभियान</span>
+                </button>
+                <button class="btn-secondary" onclick="switchNav('screen-map')">
+                    <i class="fa-solid fa-map-location-dot" style="color: var(--green);"></i> <span id="lbl-act-map">भारत नक्शा</span>
+                </button>
+                <button class="btn-secondary" onclick="switchNav('screen-quiz')">
+                    <i class="fa-solid fa-graduation-cap" style="color: var(--gold);"></i> <span id="lbl-act-quiz">राजनीतिक क्विज़</span>
+                </button>
+                <button class="btn-secondary" onclick="switchNav('screen-parliament')">
+                    <i class="fa-solid fa-landmark" style="color: #60A5FA;"></i> <span id="lbl-act-parl">संसद भवन</span>
+                </button>
+            </div>
+
+            <!-- Crisis Trigger Sample Button -->
+            <button class="btn-secondary" style="border-color: rgba(239, 68, 68, 0.4); color: var(--red); margin-bottom: 14px;" onclick="triggerSuddenCrisis()">
+                <i class="fa-solid fa-triangle-exclamation"></i> <span id="lbl-trigger-crisis">अचानक राष्ट्रीय संकट का सामना करें</span>
+            </button>
+
+            <!-- Notifications -->
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;" id="lbl-news-title">ताज़ा राजनीतिक समाचार व सूचनाएं</h3>
+            <div id="notifications-container">
+                <div class="ticker-item">चुनाव आयोग ने आदर्श आचार संहिता लागू की।</div>
+                <div class="ticker-item">युवा वर्ग में आपकी पार्टी की साख में वृद्धि दर्ज की गई।</div>
+            </div>
+        </div>
+
+        <!-- 5. Interactive Map Screen -->
+        <div class="screen" id="screen-map">
+            <h2 style="font-size: 20px; font-weight: 800; color: var(--saffron); margin-bottom: 4px;" id="txt-map-head">भारत राजनीतिक मानचित्र</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;" id="txt-map-sub">स्तर 1 से स्तर 4 तक क्षेत्रीय राजनीतिक प्रभाव</p>
+
+            <div class="map-container">
+                <canvas id="mapCanvas"></canvas>
+                <div class="map-overlay-controls">
+                    <div class="map-zoom-btn" onclick="zoomMap(1)">+</div>
+                    <div class="map-zoom-btn" onclick="zoomMap(-1)">-</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 14px; font-weight: 700;" id="txt-current-region">वाराणसी उत्तर (उत्तर प्रदेश)</span>
+                    <span style="font-size: 12px; color: var(--green); font-weight: 700;">48% समर्थन</span>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted);">
+                    कुल मतदाता: 4,20,000 | ग्रामीण: 25% | शहरी: 75% | युवा मतदाता: 35%
+                </p>
+            </div>
+        </div>
+
+        <!-- 6. Campaign Screen -->
+        <div class="screen" id="screen-campaign">
+            <h2 style="font-size: 20px; font-weight: 800; color: var(--saffron); margin-bottom: 4px;" id="txt-camp-head">प्रचार व जनसंपर्क रणनीतियां</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;" id="txt-camp-sub">कोष और ऊर्जा खर्च कर जनसमर्थन अर्जित करें</p>
+
+            <div id="campaign-list">
+                <!-- Injected Dynamically -->
+            </div>
+        </div>
+
+        <!-- 7. Parliament Screen -->
+        <div class="screen" id="screen-parliament">
+            <h2 style="font-size: 20px; font-weight: 800; color: var(--saffron); margin-bottom: 4px;" id="txt-parl-head">संसद भवन (लोकसभा सत्र)</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;" id="txt-parl-sub">राष्ट्रीय विधेयक पेश करें, बहुमत से पारित कराएं</p>
+
+            <div class="card" style="background: rgba(15, 23, 42, 0.8);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 13px; font-weight: 700;">सदन संरचना (543 सीटें)</span>
+                    <span style="font-size: 12px; color: var(--saffron); font-weight: 700;">बहुमत: 272</span>
+                </div>
+                <div style="height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 8px; display: flex;">
+                    <div style="width: 58%; background: var(--saffron);"></div>
+                    <div style="width: 42%; background: var(--red);"></div>
+                </div>
+            </div>
+
+            <div id="bills-container">
+                <!-- Bills injected dynamically -->
+            </div>
+        </div>
+
+        <!-- 8. Prime Minister Dashboard Screen -->
+        <div class="screen" id="screen-pm">
+            <h2 style="font-size: 20px; font-weight: 800; color: var(--gold); margin-bottom: 4px;" id="txt-pm-head">प्रधानमंत्री कार्यालय (PMO)</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;" id="txt-pm-sub">राष्ट्रीय अर्थव्यवस्था व 11 मंत्रालयों का बजट प्रबंधन</p>
+
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <span class="stat-label">GDP Growth</span>
+                    <span class="stat-val" style="color: var(--green);">6.8%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">मुद्रास्फीति (Inflation)</span>
+                    <span class="stat-val" style="color: var(--red);">4.8%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">सरकार अनुमोदन</span>
+                    <span class="stat-val" style="color: var(--saffron);">64%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">वार्षिक बजट</span>
+                    <span class="stat-val" style="color: var(--gold);">₹48 Lakh Cr</span>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">11 मंत्रालयों का केंद्रीय बजट आवंटन</h3>
+            <div id="budget-sliders-container">
+                <!-- Sliders injected -->
+            </div>
+        </div>
+
+        <!-- 9. Quiz Screen -->
+        <div class="screen" id="screen-quiz">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div>
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--saffron);" id="txt-quiz-head">संवैधानिक एवं राजनीतिक क्विज़</h2>
+                    <span style="font-size: 11px; color: var(--text-muted);" id="txt-quiz-sub">ज्ञान बढ़ाएं और सांख्यिकी अंक अर्जित करें</span>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.2); color: var(--gold); padding: 4px 10px; border-radius: 8px; font-weight: 800;" id="quiz-score-display">
+                    अंक: 0
+                </div>
+            </div>
+
+            <div class="card" id="quiz-card">
+                <span style="font-size: 11px; color: var(--saffron); font-weight: 800;" id="quiz-category">संविधान</span>
+                <p style="font-size: 16px; font-weight: 700; margin-top: 8px; line-height: 1.4;" id="quiz-question-text">
+                    भारतीय संविधान का कौन सा अनुच्छेद चुनाव आयोग से संबंधित है?
+                </p>
+            </div>
+
+            <div id="quiz-options-container" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Options injected -->
+            </div>
+        </div>
+
+        <!-- 10. Crisis Alert Modal Screen -->
+        <div class="screen" id="screen-crisis">
+            <div class="crisis-banner">
+                <div style="display: flex; align-items: center; gap: 8px; color: var(--red); font-size: 13px; font-weight: 800;">
+                    <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                    <span id="txt-crisis-banner-title">आपातकालीन राष्ट्रीय संकट चेतावनी</span>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 800; color: #FFF; margin-top: 6px;" id="txt-crisis-title">
+                    पूर्वी क्षेत्र में भीषण बाढ़ का प्रकोप
+                </h3>
+                <p style="font-size: 13px; color: #E2E8F0; margin-top: 6px;" id="txt-crisis-desc">
+                    लगातार भारी वर्षा से 12 जिलों में बाढ़ आ गई है। 20 लाख नागरिक प्रभावित हैं।
+                </p>
+            </div>
+
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;" id="lbl-crisis-choices">कार्यकारी निर्णय विकल्प</h3>
+            <div id="crisis-choices-container" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Choices injected -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav id="bottom-nav" style="display: none;">
+        <div class="nav-item active" onclick="switchNav('screen-home')" id="nav-home">
+            <i class="fa-solid fa-house"></i>
+            <span id="lbl-nav-home">होम</span>
+        </div>
+        <div class="nav-item" onclick="switchNav('screen-map')" id="nav-map">
+            <i class="fa-solid fa-map"></i>
+            <span id="lbl-nav-map">नक्शा</span>
+        </div>
+        <div class="nav-item" onclick="switchNav('screen-campaign')" id="nav-campaign">
+            <i class="fa-solid fa-bullhorn"></i>
+            <span id="lbl-nav-campaign">प्रचार</span>
+        </div>
+        <div class="nav-item" onclick="switchNav('screen-parliament')" id="nav-parliament">
+            <i class="fa-solid fa-landmark"></i>
+            <span id="lbl-nav-parliament">संसद</span>
+        </div>
+        <div class="nav-item" onclick="switchNav('screen-pm')" id="nav-pm">
+            <i class="fa-solid fa-crown"></i>
+            <span id="lbl-nav-pm">पीएम कक्ष</span>
+        </div>
+        <div class="nav-item" onclick="switchNav('screen-quiz')" id="nav-quiz">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span id="lbl-nav-quiz">क्विज़</span>
+        </div>
+    </nav>
+</div>
+
+<script>
+    // Game State Object
+    const state = {
+        isHindi: true,
+        player: {
+            name: "आलोक शर्मा",
+            age: 32,
+            state: "उत्तर प्रदेश",
+            district: "वाराणसी",
+            constituency: "वाराणसी उत्तर",
+            publicTrust: 52,
+            leadership: 65,
+            energy: 100,
+            levelIndex: 1
+        },
+        party: {
+            name: "जन स्वाभिमान पार्टी",
+            code: "JSP",
+            slogan: "न्याय, विकास और राष्ट्र निर्माण",
+            priority: "शिक्षा एवं रोजगार",
+            funds: 500000,
+            workers: 240,
+            popularity: 42
+        },
+        quizIndex: 0,
+        quizScore: 0,
+        mapZoom: 1
+    };
+
+    // Web Audio Synthesizer Sound Effects
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(freq, type, duration) {
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(freq || 440, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+
+    const campaigns = [
+        { id: "rally", hi: "विशाल जनसभा (Public Rally)", en: "Public Rally", cost: 50000, energy: 20, trust: 5, pop: 8 },
+        { id: "d2d", hi: "घर-घर जनसंपर्क (Door-to-Door)", en: "Door-to-Door Campaign", cost: 10000, energy: 15, trust: 6, pop: 4 },
+        { id: "townhall", hi: "टाउन हॉल परिचर्चा (Town Hall)", en: "Town Hall Dialogue", cost: 25000, energy: 15, trust: 5, pop: 5 },
+        { id: "debate", hi: "लाइव टीवी डिबेट (Live TV Debate)", en: "Live Political Debate", cost: 20000, energy: 25, trust: 4, pop: 9 },
+        { id: "digital", hi: "डिजिटल व सोशल प्रचार (Digital Ads)", en: "Digital & Social Media", cost: 35000, energy: 10, trust: 3, pop: 7 }
+    ];
+
+    const quizQuestions = [
+        {
+            cat: "भारतीय संविधान",
+            qHi: "भारतीय संविधान का कौन सा अनुच्छेद भारत के चुनाव आयोग से संबंधित है?",
+            qEn: "Which Article of the Indian Constitution deals with the Election Commission of India?",
+            optsHi: ["अनुच्छेद 324", "अनुच्छेद 356", "अनुच्छेद 280", "अनुच्छेद 370"],
+            optsEn: ["Article 324", "Article 356", "Article 280", "Article 370"],
+            ans: 0
+        },
+        {
+            cat: "संसद व्यवस्था",
+            qHi: "लोकसभा में 'धन विधेयक' (Money Bill) किसकी पूर्वानुमति से पेश किया जाता है?",
+            qEn: "Whose prior recommendation is required to introduce a Money Bill in Lok Sabha?",
+            optsHi: ["भारत के राष्ट्रपति", "प्रधानमंत्री", "लोकसभा अध्यक्ष", "वित्त मंत्री"],
+            optsEn: ["President of India", "Prime Minister", "Lok Sabha Speaker", "Finance Minister"],
+            ans: 0
+        },
+        {
+            cat: "आर्थिक नीति",
+            qHi: "राजकोषीय घाटे (Fiscal Deficit) का मुख्य अर्थ क्या है?",
+            qEn: "What does Fiscal Deficit represent in national economy?",
+            optsHi: ["सरकार के कुल व्यय और गैर-ऋण प्राप्तियों का अंतर", "केवल आयात-निर्यात का अंतर", "बैंकों का एनपीए", "विदेशी ऋण मात्र"],
+            optsEn: ["Excess of total expenditure over non-debt receipts", "Export-Import difference only", "Bank NPAs", "Foreign loans only"],
+            ans: 0
+        }
+    ];
+
+    const ministries = [
+        { hi: "वित्त मंत्रालय", en: "Finance", val: 18 },
+        { hi: "गृह मंत्रालय", en: "Home Affairs", val: 12 },
+        { hi: "शिक्षा मंत्रालय", en: "Education", val: 12 },
+        { hi: "स्वास्थ्य मंत्रालय", en: "Healthcare", val: 11 },
+        { hi: "कृषि एवं किसान", en: "Agriculture", val: 12 },
+        { hi: "सड़क व अवसंरचना", en: "Infrastructure", val: 13 },
+        { hi: "रक्षा मंत्रालय", en: "Defence", val: 14 },
+        { hi: "इलेक्ट्रॉनिक्स व आईटी", en: "Technology", val: 8 }
+    ];
+
+    function startJourney() {
+        playBeep(520, 'triangle', 0.2);
+        showScreen('screen-player-create');
+    }
+
+    function submitPlayerCreation() {
+        state.player.name = document.getElementById('inp-player-name').value || state.player.name;
+        state.player.state = document.getElementById('inp-player-state').value || state.player.state;
+        state.player.district = document.getElementById('inp-player-dist').value || state.player.district;
+        state.player.constituency = document.getElementById('inp-player-const').value || state.player.constituency;
+        playBeep(600, 'sine', 0.15);
+        showScreen('screen-party-create');
+    }
+
+    function submitPartyCreation() {
+        state.party.name = document.getElementById('inp-party-name').value || state.party.name;
+        state.party.code = document.getElementById('inp-party-code').value || state.party.code;
+        state.party.slogan = document.getElementById('inp-party-slogan').value || state.party.slogan;
+        playBeep(700, 'sine', 0.25);
+        
+        document.getElementById('top-hud').style.display = 'flex';
+        document.getElementById('bottom-nav').style.display = 'flex';
+        updateHUD();
+        renderCampaigns();
+        renderQuiz();
+        renderMinistries();
+        initMapCanvas();
+        showScreen('screen-home');
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById(id);
+        if (target) target.classList.add('active');
+
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const navMap = {
+            'screen-home': 'nav-home',
+            'screen-map': 'nav-map',
+            'screen-campaign': 'nav-campaign',
+            'screen-parliament': 'nav-parliament',
+            'screen-pm': 'nav-pm',
+            'screen-quiz': 'nav-quiz'
+        };
+        if (navMap[id]) {
+            const navEl = document.getElementById(navMap[id]);
+            if (navEl) navEl.classList.add('active');
+        }
+    }
+
+    function switchNav(id) {
+        playBeep(480, 'sine', 0.1);
+        showScreen(id);
+        if (id === 'screen-map') drawMap();
+    }
+
+    function updateHUD() {
+        document.getElementById('hud-player-name').innerText = state.player.name;
+        document.getElementById('hud-player-rank').innerText = state.player.levelIndex >= 10 ? "प्रधानमंत्री (Prime Minister)" : "पार्टी संस्थापक (Party Founder)";
+        document.getElementById('hud-party-funds').innerText = `₹${(state.party.funds / 1000).toFixed(0)}k`;
+        document.getElementById('hud-public-trust').innerText = `${state.player.publicTrust.toFixed(0)}%`;
+        
+        document.getElementById('val-popularity').innerText = `${state.party.popularity.toFixed(0)}%`;
+        document.getElementById('val-trust').innerText = `${state.player.publicTrust.toFixed(0)}%`;
+        document.getElementById('val-workers').innerText = state.party.workers;
+        document.getElementById('val-energy').innerText = `${state.player.energy}⚡`;
+    }
+
+    function renderCampaigns() {
+        const container = document.getElementById('campaign-list');
+        container.innerHTML = campaigns.map(c => `
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 15px; font-weight: 700;">${state.isHindi ? c.hi : c.en}</span>
+                    <span style="font-size: 12px; color: var(--gold); font-weight: 700;">₹${c.cost/1000}k | -${c.energy}⚡</span>
+                </div>
+                <div style="display: flex; gap: 12px; margin: 8px 0; font-size: 12px;">
+                    <span style="color: var(--green);">विश्वास: +${c.trust}%</span>
+                    <span style="color: var(--saffron);">लोकप्रियता: +${c.pop}%</span>
+                </div>
+                <button class="btn-primary" onclick="executeCampaign('${c.id}')" style="padding: 8px;">आयोजित करें</button>
+            </div>
+        `).join('');
+    }
+
+    function executeCampaign(id) {
+        const c = campaigns.find(x => x.id === id);
+        if (!c) return;
+        if (state.party.funds < c.cost || state.player.energy < c.energy) {
+            alert(state.isHindi ? "अपर्याप्त कोष या ऊर्जा!" : "Insufficient funds or energy!");
+            return;
+        }
+
+        state.party.funds -= c.cost;
+        state.player.energy = Math.max(0, state.player.energy - c.energy);
+        state.player.publicTrust = Math.min(100, state.player.publicTrust + c.trust);
+        state.party.popularity = Math.min(100, state.party.popularity + c.pop);
+
+        playBeep(650, 'triangle', 0.2);
+        updateHUD();
+        addNotification(state.isHindi ? `${c.hi} सफल रही! जनविश्वास +${c.trust}%` : `${c.en} successful! Trust +${c.trust}%`);
+    }
+
+    function addNotification(msg) {
+        const c = document.getElementById('notifications-container');
+        const item = document.createElement('div');
+        item.className = 'ticker-item';
+        item.innerText = msg;
+        c.prepend(item);
+    }
+
+    function runElectionDay() {
+        playBeep(800, 'square', 0.3);
+        const win = state.player.publicTrust > 50;
+        if (win) {
+            state.player.levelIndex = 10;
+            state.player.publicTrust = Math.min(100, state.player.publicTrust + 15);
+            updateHUD();
+            alert(state.isHindi ? "शानदार ऐतिहासिक विजय! आप भारी बहुमत से विजयी हुए और देश के प्रधानमंत्री पद की शपथ ली!" : "Historic Victory! You secured absolute majority and sworn in as Prime Minister of Bharat!");
+            switchNav('screen-pm');
+        } else {
+            alert(state.isHindi ? "कड़ा चुनावी मुकाबला! विपक्ष आगे रहा। जनविश्वास बढ़ाने के लिए और रैलियां व जनसंपर्क करें।" : "Tough contest! Opposition edged ahead. Conduct more campaigns to earn voter trust.");
+        }
+    }
+
+    function renderQuiz() {
+        const q = quizQuestions[state.quizIndex % quizQuestions.length];
+        document.getElementById('quiz-category').innerText = q.cat;
+        document.getElementById('quiz-question-text').innerText = state.isHindi ? q.qHi : q.qEn;
+        document.getElementById('quiz-score-display').innerText = `अंक: ${state.quizScore}`;
+
+        const opts = state.isHindi ? q.optsHi : q.optsEn;
+        const container = document.getElementById('quiz-options-container');
+        container.innerHTML = opts.map((opt, idx) => `
+            <button class="btn-secondary" style="text-align: left; padding: 12px;" onclick="answerQuiz(${idx})">
+                ${idx + 1}. ${opt}
+            </button>
+        `).join('');
+    }
+
+    function answerQuiz(idx) {
+        const q = quizQuestions[state.quizIndex % quizQuestions.length];
+        if (idx === q.ans) {
+            playBeep(880, 'sine', 0.25);
+            state.quizScore += 10;
+            state.player.publicTrust = Math.min(100, state.player.publicTrust + 2);
+            alert(state.isHindi ? "बधाई! सही उत्तर (+10 अंक, जनविश्वास +2%)" : "Correct answer! (+10 pts, Trust +2%)");
+        } else {
+            playBeep(240, 'sawtooth', 0.3);
+            alert(state.isHindi ? "गलत उत्तर! पुन: प्रयास करें।" : "Incorrect! Review Civics & Constitution.");
+        }
+        state.quizIndex++;
+        updateHUD();
+        renderQuiz();
+    }
+
+    function renderMinistries() {
+        const container = document.getElementById('budget-sliders-container');
+        container.innerHTML = ministries.map(m => `
+            <div class="card" style="padding: 10px; margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700;">
+                    <span>${state.isHindi ? m.hi : m.en}</span>
+                    <span style="color: var(--saffron);">${m.val}%</span>
+                </div>
+                <input type="range" min="2" max="30" value="${m.val}" style="width: 100%; accent-color: var(--saffron); margin-top: 6px;" oninput="this.previousElementSibling.children[1].innerText = this.value + '%'">
+            </div>
+        `).join('');
+    }
+
+    function triggerSuddenCrisis() {
+        playBeep(320, 'sawtooth', 0.4);
+        showScreen('screen-crisis');
+        const container = document.getElementById('crisis-choices-container');
+        container.innerHTML = `
+            <div class="card" style="cursor: pointer;" onclick="resolveCrisis(1)">
+                <p style="font-weight: 700; color: #FFF;">1. तुरंत राष्ट्रीय आपदा कोष से ₹5,000 Cr जारी करें व सेना तैनात करें</p>
+                <span style="font-size: 11px; color: var(--green);">प्रभाव: जनविश्वास +8%, अनुमोदन +6%</span>
+            </div>
+            <div class="card" style="cursor: pointer;" onclick="resolveCrisis(2)">
+                <p style="font-weight: 700; color: #FFF;">2. बुनियादी राहत पैकेज ₹1,000 Cr भेजें</p>
+                <span style="font-size: 11px; color: var(--gold);">प्रभाव: औसत राहत, सीमित मीडिया प्रभाव</span>
+            </div>
+            <div class="card" style="cursor: pointer;" onclick="resolveCrisis(3)">
+                <p style="font-weight: 700; color: #FFF;">3. नुकसान का आकलन करने हेतु सर्वेक्षण समिति बनाएं</p>
+                <span style="font-size: 11px; color: var(--red);">प्रभाव: देरी से जनरोष, विश्वास -10%</span>
+            </div>
+        `;
+    }
+
+    function resolveCrisis(choice) {
+        if (choice === 1) {
+            state.player.publicTrust = Math.min(100, state.player.publicTrust + 8);
+            addNotification("बाढ़ राहत कार्य सफल रहा! जनता ने सरकार के त्वरित निर्णय की सराहना की।");
+        } else if (choice === 2) {
+            addNotification("बाढ़ प्रभावित क्षेत्रों में बुनियादी राहत पहुंची।");
+        } else {
+            state.player.publicTrust = Math.max(10, state.player.publicTrust - 10);
+            addNotification("राहत कार्य में देरी से विपक्षी दलों ने संसद में विरोध प्रदर्शन किया।");
+        }
+        playBeep(580, 'sine', 0.2);
+        updateHUD();
+        showScreen('screen-home');
+    }
+
+    function toggleLanguage() {
+        state.isHindi = !state.isHindi;
+        document.getElementById('btn-lang-toggle').innerText = state.isHindi ? "EN" : "हिन्दी";
+        renderCampaigns();
+        renderQuiz();
+        renderMinistries();
+    }
+
+    function initMapCanvas() {
+        const canvas = document.getElementById('mapCanvas');
+        if (!canvas) return;
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        drawMap();
+    }
+
+    function drawMap() {
+        const canvas = document.getElementById('mapCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Grid
+        ctx.strokeStyle = "#1E293B";
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width; x += 30) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += 30) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
+
+        // Animated Central Zone
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        ctx.fillStyle = "rgba(255, 153, 51, 0.25)";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 40 * state.mapZoom, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#138808";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#FFF";
+        ctx.font = "bold 12px Mukta, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(state.player.constituency, cx, cy - 14);
+    }
+
+    function zoomMap(delta) {
+        state.mapZoom = Math.max(1, Math.min(4, state.mapZoom + delta));
+        drawMap();
+    }
+
+    window.addEventListener('resize', initMapCanvas);
+</script>
+</body>
+</html>

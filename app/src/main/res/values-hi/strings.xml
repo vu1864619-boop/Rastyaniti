@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">राष्ट्रनीति</string>
+    <string name="tagline">एक आम आदमी से प्रधानमंत्री तक</string>
+    <string name="opening_quote">यह देश आपका है।\nअब फैसला आपका है।</string>
+    <string name="opening_question">क्या एक आम नागरिक देश का प्रधानमंत्री बन सकता है?</string>
+    <string name="btn_start_journey">यात्रा शुरू करें</string>
+    <string name="nav_home">होम</string>
+    <string name="nav_map">नक्शा</string>
+    <string name="nav_party">पार्टी</string>
+    <string name="nav_campaign">प्रचार</string>
+    <string name="nav_parliament">संसद</string>
+    <string name="nav_government">सरकार</string>
+    <string name="nav_media">मीडिया</string>
+    <string name="nav_quiz">क्विज़</string>
+    <string name="nav_multiplayer">मल्टीप्लेयर</string>
+</resources>
