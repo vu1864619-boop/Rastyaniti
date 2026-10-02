@@ -13,11 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Java 17
       - name: ☕ Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -25,17 +23,15 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # Step 3: Download gradle-wrapper.jar (needed for ./gradlew)
       - name: 📦 Download Gradle Wrapper JAR
         run: |
           mkdir -p gradle/wrapper
           curl -fsSL \
             "https://github.com/gradle/gradle/raw/v8.7.0/gradle/wrapper/gradle-wrapper.jar" \
             -o gradle/wrapper/gradle-wrapper.jar
-          ls -la gradle/wrapper/
           chmod +x gradlew
+          echo "✅ Gradle wrapper ready: $(ls -lh gradle/wrapper/gradle-wrapper.jar)"
 
-      # Step 4: Cache Gradle
       - name: 🗃️ Cache Gradle packages
         uses: actions/cache@v4
         with:
@@ -46,24 +42,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # Step 5: Show Android SDK info (pre-installed on ubuntu-latest)
-      - name: 📱 Show Android SDK info
-        run: |
-          echo "ANDROID_SDK_ROOT = $ANDROID_SDK_ROOT"
-          echo "ANDROID_HOME = $ANDROID_HOME"
-          ls $ANDROID_SDK_ROOT/platforms/ || true
-
-      # Step 6: Accept Android SDK licenses
       - name: ✅ Accept Android SDK Licenses
         run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-      # Step 7: Build Debug APK
+      - name: 📱 Install Android SDK platform 34
+        run: $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
       - name: 🔨 Build Debug APK
         run: ./gradlew assembleDebug --no-daemon --stacktrace
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
 
-      # Step 8: Upload APK
       - name: 📤 Upload APK Artifact
         if: success()
         uses: actions/upload-artifact@v4
@@ -72,7 +59,6 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 30
 
-      # Step 9: Show result
       - name: ✅ Build Complete
         if: success()
         run: |
