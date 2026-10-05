@@ -1,11 +1,14 @@
-// Main 3D Game Application Entry Point
+// Main 3D Game Application Entry Point with In-World Traffic, Rallies, and Lifecycle Management
 import * as THREE from 'three';
 import { gameState } from './systems/GameState.js';
 import { TownWorld } from './game/TownWorld.js';
 import { PlayerCharacter } from './game/PlayerCharacter.js';
 import { NPCManager } from './game/NPCManager.js';
+import { TrafficSystem } from './game/TrafficSystem.js';
+import { InWorldEventSystem } from './game/InWorldEventSystem.js';
 import { TouchController } from './ui/TouchController.js';
 import { UIManager } from './ui/UIManager.js';
+import { LifeSimulationSystem } from './systems/LifeSimulationSystem.js';
 import { sound } from './systems/SoundFX.js';
 
 export class RashtraNitiGame {
@@ -20,6 +23,8 @@ export class RashtraNitiGame {
     this.initWorld();
     this.initPlayer();
     this.initNPCs();
+    this.initTraffic();
+    this.initEvents();
     this.initUI();
     this.initController();
 
@@ -32,7 +37,7 @@ export class RashtraNitiGame {
 
   initThree() {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x87ceeb); // Indian daylight sky
+    this.scene.background = new THREE.Color(0x87ceeb); // Daylight sky
     this.scene.fog = new THREE.FogExp2(0xcfe2f3, 0.012);
 
     this.camera = new THREE.PerspectiveCamera(
@@ -49,7 +54,7 @@ export class RashtraNitiGame {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.container.appendChild(this.renderer.domElement);
 
-    // Sunlight & Ambient Lighting
+    // Warm Indian sunlight & ambient illumination
     const ambientLight = new THREE.AmbientLight(0xfff6e6, 0.7);
     this.scene.add(ambientLight);
 
@@ -79,6 +84,14 @@ export class RashtraNitiGame {
     this.npcManager = new NPCManager(this.scene);
   }
 
+  initTraffic() {
+    this.traffic = new TrafficSystem(this.scene, this.world.colliders);
+  }
+
+  initEvents() {
+    this.events = new InWorldEventSystem(this.scene);
+  }
+
   initUI() {
     this.ui = new UIManager(this);
   }
@@ -100,12 +113,12 @@ export class RashtraNitiGame {
         this.ui.openModal('GOVERNANCE');
       } else if (nearbyPOI.poi.type === 'RALLY_GROUND' || nearbyPOI.poi.type === 'SOCIAL') {
         this.ui.openModal('CAMPAIGN');
+      } else if (nearbyPOI.poi.type === 'BUSINESS') {
+        this.ui.openModal('LIFE');
       } else if (nearbyPOI.poi.type === 'HOME') {
-        gameState.player.energy = 100;
-        gameState.advanceTime(120);
+        const res = LifeSimulationSystem.restAtHome();
         this.ui.updateHUD();
-        sound.playMissionComplete();
-        alert('घर पर विश्राम किया! आपकी ऊर्जा (Energy) 100% हो गई है।');
+        alert(res.msg);
       } else {
         this.ui.openModal('MISSIONS');
       }
@@ -123,7 +136,6 @@ export class RashtraNitiGame {
     if (nearbyNPC) {
       this.ui.showDialogue(nearbyNPC.npc);
     } else {
-      // Check if near POI
       const poiInfo = this.world.getNearbyPOI(this.player.position.x, this.player.position.z);
       if (poiInfo) {
         alert(`${poiInfo.poi.nameHi}\n${poiInfo.poi.descHi}`);
@@ -132,7 +144,7 @@ export class RashtraNitiGame {
   }
 
   handleJump() {
-    // Already triggered physics in PlayerCharacter
+    // Player physics jump
   }
 
   onWindowResize() {
@@ -144,7 +156,6 @@ export class RashtraNitiGame {
   updateCamera(delta) {
     const yaw = this.touchController.input.cameraYaw || 0;
 
-    // Orbit offset around player based on yaw
     const camDist = 9.0;
     const camHeight = 5.0;
 
@@ -188,6 +199,8 @@ export class RashtraNitiGame {
 
     this.player.update(delta, this.touchController.input, this.world);
     this.npcManager.update(delta, this.player.position);
+    if (this.traffic) this.traffic.update(delta);
+    if (this.events) this.events.update(delta);
     this.updateCamera(delta);
     this.checkPrompts();
 

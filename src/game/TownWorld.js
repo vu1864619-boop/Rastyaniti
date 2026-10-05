@@ -1,8 +1,6 @@
-// Procedural & Modular Indian Town District Map for Three.js
-// Optimized for mobile Android with low draw calls, merged geometries, and recognizable Indian town architecture:
-// Roads with yellow/white markings, roadside stalls (chai/paan stall), Nagar Nigam municipal office,
-// Government hospital, primary school, police station with tricolor/Indian flag, temple/public chowk,
-// auto-rickshaw/bus stop, trees (neem/banyan style), streetlights, and buildings.
+// Enhanced Procedural Indian Town District Map for Three.js
+// Features: Kirana store, Chai stall, Nagar Nigam, Hospital, School, Police Station,
+// Mandir/Peace Garden, Park with benches, residential houses, parked autos, street lamps, and collision grid.
 
 import * as THREE from 'three';
 
@@ -21,7 +19,8 @@ export class TownWorld {
       road: new THREE.MeshLambertMaterial({ color: 0x24272c }),
       roadStripe: new THREE.MeshBasicMaterial({ color: 0xf5f5f5 }),
       sidewalk: new THREE.MeshLambertMaterial({ color: 0x9e9a8f }),
-      ground: new THREE.MeshLambertMaterial({ color: 0x4f5d30 }), // Earthy Indian green grass/soil
+      ground: new THREE.MeshLambertMaterial({ color: 0x4f5d30 }), // Earthy Indian green grass
+      parkGrass: new THREE.MeshLambertMaterial({ color: 0x3d702d }),
       dirtGround: new THREE.MeshLambertMaterial({ color: 0x8a7051 }),
 
       // Indian building colors
@@ -29,7 +28,7 @@ export class TownWorld {
       wallPink: new THREE.MeshLambertMaterial({ color: 0xd98679 }),   // Jaipur terracotta pink
       wallBlue: new THREE.MeshLambertMaterial({ color: 0x5b9aa0 }),   // Jodhpur blue
       wallWhite: new THREE.MeshLambertMaterial({ color: 0xdedede }),  // Govt whitewash
-      wallGovtGreen: new THREE.MeshLambertMaterial({ color: 0x2e6b4e }),
+      wallTempleSaffron: new THREE.MeshLambertMaterial({ color: 0xf97316 }), // Sacred saffron ochre
       roofTile: new THREE.MeshLambertMaterial({ color: 0x994d2f }),   // Terracotta clay tiles
       concrete: new THREE.MeshLambertMaterial({ color: 0x7c7c7c }),
 
@@ -61,11 +60,12 @@ export class TownWorld {
     this.createResidentialMohalla();
     this.createBusStopAndVehicles();
     this.createCentralChowkAndFlag();
+    this.createTemplePeaceSanctuary();
+    this.createPublicPark();
     this.createTreesAndStreetlights();
   }
 
   createTerrain() {
-    // Ground plane
     const groundGeo = new THREE.PlaneGeometry(160, 160);
     const ground = new THREE.Mesh(groundGeo, this.materials.ground);
     ground.rotation.x = -Math.PI / 2;
@@ -76,7 +76,7 @@ export class TownWorld {
   createRoadNetwork() {
     const roadGroup = new THREE.Group();
 
-    // Main East-West Road (Rajpath / Main Market Road)
+    // Main East-West Road (Rajpath)
     const mainRoadGeo = new THREE.PlaneGeometry(16, 150);
     const mainRoad = new THREE.Mesh(mainRoadGeo, this.materials.road);
     mainRoad.rotation.x = -Math.PI / 2;
@@ -90,7 +90,7 @@ export class TownWorld {
     crossRoad.position.y = 0.025;
     roadGroup.add(crossRoad);
 
-    // Road Markings (Zebra crossings & lane divider lines)
+    // Road Markings (Zebra crossings & divider stripes)
     for (let z = -65; z <= 65; z += 6) {
       if (Math.abs(z) > 10) {
         const stripeGeo = new THREE.PlaneGeometry(0.5, 3);
@@ -111,7 +111,7 @@ export class TownWorld {
       }
     }
 
-    // Footpath / Sidewalks alongside main road
+    // Footpaths / Sidewalks alongside main road
     const swGeo1 = new THREE.BoxGeometry(2.5, 0.25, 150);
     const swLeft = new THREE.Mesh(swGeo1, this.materials.sidewalk);
     swLeft.position.set(-9.25, 0.125, 0);
@@ -132,7 +132,6 @@ export class TownWorld {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
 
-    // Main two-story colonial-style government building
     const mainBody = new THREE.Mesh(new THREE.BoxGeometry(24, 7, 16), this.materials.wallWhite);
     mainBody.position.y = 3.5;
     mainBody.castShadow = true;
@@ -158,9 +157,7 @@ export class TownWorld {
     signBoard.position.set(0, 6.2, 8.2);
     group.add(signBoard);
 
-    // Tricolor flag atop municipal office
     this.addIndianFlag(group, 0, 7.8, 0);
-
     this.scene.add(group);
 
     this.registerPOI({
@@ -198,13 +195,12 @@ export class TownWorld {
     sign.position.set(0, 2.2, 9.15);
     group.add(sign);
 
-    // Ambulance parking prop
+    // Ambulance prop
     const amb = new THREE.Mesh(new THREE.BoxGeometry(3.5, 2.2, 5.5), this.materials.wallWhite);
     amb.position.set(8, 1.1, 12);
     const redLight = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.4), new THREE.MeshBasicMaterial({ color: 0xdc2626 }));
     redLight.position.set(8, 2.4, 12);
-    group.add(amb);
-    group.add(redLight);
+    group.add(amb, redLight);
     this.addBoxCollider(x + 8, z + 12, 4, 6);
 
     this.scene.add(group);
@@ -218,13 +214,12 @@ export class TownWorld {
     });
   }
 
-  // 3. Primary Government School (प्राथमिक विद्यालय)
+  // 3. Primary Government School (शासकीय प्राथमिक विद्यालय)
   createPrimarySchool() {
     const x = -38, z = 32;
     const group = new THREE.Group();
     group.position.set(x, 0, z);
 
-    // U-shaped school building
     const bldCenter = new THREE.Mesh(new THREE.BoxGeometry(20, 4.5, 10), this.materials.wallYellow);
     bldCenter.position.y = 2.25;
     bldCenter.castShadow = true;
@@ -236,12 +231,10 @@ export class TownWorld {
     group.add(wing);
     this.addBoxCollider(x - 10, z + 4, 8, 12);
 
-    // Blackboard / Slogan Wall "सब पढ़ें, सब बढ़ें"
     const sloganWall = new THREE.Mesh(new THREE.BoxGeometry(10, 1.5, 0.2), this.materials.boardBlue);
     sloganWall.position.set(0, 3.8, 5.15);
     group.add(sloganWall);
 
-    // School Playground swings / assembly pole
     const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 7), this.materials.metalLight);
     pole.position.set(0, 3.5, 11);
     group.add(pole);
@@ -270,18 +263,14 @@ export class TownWorld {
     group.add(bld);
     this.addBoxCollider(x, z, 18, 14);
 
-    // Police Signboard (Red & Blue pattern)
     const signR = new THREE.Mesh(new THREE.BoxGeometry(5, 1.2, 0.2), new THREE.MeshBasicMaterial({ color: 0xdc2626 }));
     signR.position.set(-2.5, 4.2, 7.15);
-    group.add(signR);
-
     const signB = new THREE.Mesh(new THREE.BoxGeometry(5, 1.2, 0.2), new THREE.MeshBasicMaterial({ color: 0x1e3a8a }));
     signB.position.set(2.5, 4.2, 7.15);
-    group.add(signB);
+    group.add(signR, signB);
 
-    // Police barricade props
     for (let bx = -4; bx <= 4; bx += 4) {
-      const bar = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.2, 0.4), this.materials.boardYellow || this.materials.autoYellow);
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.2, 0.4), this.materials.autoYellow);
       bar.position.set(bx, 0.6, 10);
       group.add(bar);
       this.addBoxCollider(x + bx, z + 10, 2.5, 0.6);
@@ -298,11 +287,11 @@ export class TownWorld {
     });
   }
 
-  // 5. Market with Chai Stall, Kirana Shop, Paan Shop
+  // 5. Market with Chai Stall & Kirana Store
   createMarketAndChaiStalls() {
     const shopsGroup = new THREE.Group();
 
-    // North Market Row (x: -12 to -28 along z: -10)
+    // North Market Row
     const shopColors = [this.materials.wallPink, this.materials.wallBlue, this.materials.wallYellow];
     for (let i = 0; i < 4; i++) {
       const sx = -14 - (i * 5.5);
@@ -313,21 +302,32 @@ export class TownWorld {
       shopsGroup.add(shop);
       this.addBoxCollider(sx, sz, 5, 6);
 
-      // Awning / Shade (Shutter shade)
       const awning = new THREE.Mesh(new THREE.BoxGeometry(5, 0.15, 2.2), this.materials.tarpBlue);
       awning.position.set(sx, 2.8, sz + 3.8);
       awning.rotation.x = 0.2;
       shopsGroup.add(awning);
     }
 
-    // Popular Chai Stall (शर्मा जी की चाय की दुकान) - Political Discussion Hub
+    // Gupta Kirana Store Signboard
+    const kiranaSign = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.8, 0.2), this.materials.boardGreen);
+    kiranaSign.position.set(-19.5, 3.4, -8.1);
+    shopsGroup.add(kiranaSign);
+
+    this.registerPOI({
+      id: 'poi_kirana',
+      nameHi: 'गुप्ता जी किराना एवं जनरल स्टोर (Kirana Store)',
+      descHi: 'स्थानीय व्यापार व राशन आपूर्ति। दैनिक रोजगार व छोटे व्यापारिक मुद्दे।',
+      position: new THREE.Vector3(-19.5, 1, -7.5),
+      type: 'BUSINESS'
+    });
+
+    // Popular Chai Stall (शर्मा जी की चाय की दुकान)
     const cx = -12, cz = 12;
     const chaiKiosk = new THREE.Mesh(new THREE.BoxGeometry(4, 2.8, 3.5), this.materials.wallPink);
     chaiKiosk.position.set(cx, 1.4, cz);
     shopsGroup.add(chaiKiosk);
     this.addBoxCollider(cx, cz, 4, 3.5);
 
-    // Bench for discussion
     const bench = new THREE.Mesh(new THREE.BoxGeometry(3, 0.5, 0.8), this.materials.trunk);
     bench.position.set(cx, 0.25, cz + 2.5);
     shopsGroup.add(bench);
@@ -360,7 +360,6 @@ export class TownWorld {
     houseRoof.rotation.y = Math.PI / 4;
     resGroup.add(houseRoof);
 
-    // Nameplate
     const namePlate = new THREE.Mesh(new THREE.BoxGeometry(2, 0.7, 0.1), this.materials.boardSaffron);
     namePlate.position.set(px, 1.8, pz + 4.6);
     resGroup.add(namePlate);
@@ -373,7 +372,7 @@ export class TownWorld {
       type: 'HOME'
     });
 
-    // Neighborhood residential houses along East
+    // Citizen residential houses along East
     for (let i = 0; i < 3; i++) {
       const hx = 16 + (i * 7);
       const hz = -12;
@@ -391,7 +390,6 @@ export class TownWorld {
     const group = new THREE.Group();
     const bx = 12, bz = 14;
 
-    // Bus stop shelter
     const shelterRoof = new THREE.Mesh(new THREE.BoxGeometry(6, 0.2, 3), this.materials.boardBlue);
     shelterRoof.position.set(bx, 3.2, bz);
     group.add(shelterRoof);
@@ -400,19 +398,7 @@ export class TownWorld {
     p1.position.set(bx - 2.8, 1.6, bz - 1.2);
     const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 3.2), this.materials.metalLight);
     p2.position.set(bx + 2.8, 1.6, bz - 1.2);
-    group.add(p1);
-    group.add(p2);
-
-    // Auto Rickshaw prop (Iconic Indian Yellow & Green)
-    const ax = 14, az = 8;
-    const autoBody = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.8, 3.6), this.materials.autoGreen);
-    autoBody.position.set(ax, 0.9, az);
-    group.add(autoBody);
-
-    const autoHood = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.6, 2.6), this.materials.autoYellow);
-    autoHood.position.set(ax, 1.9, az - 0.2);
-    group.add(autoHood);
-    this.addBoxCollider(ax, az, 2.4, 3.8);
+    group.add(p1, p2);
 
     this.scene.add(group);
 
@@ -429,20 +415,16 @@ export class TownWorld {
   createCentralChowkAndFlag() {
     const chowkGroup = new THREE.Group();
 
-    // Roundabout / Public Island
     const island = new THREE.Mesh(new THREE.CylinderGeometry(6, 6.4, 0.4, 24), this.materials.sidewalk);
     island.position.set(0, 0.2, 0);
     island.receiveShadow = true;
     chowkGroup.add(island);
 
-    // Central Pillar / Statue Base
     const base = new THREE.Mesh(new THREE.BoxGeometry(2, 1.2, 2), this.materials.concrete);
     base.position.set(0, 0.8, 0);
     chowkGroup.add(base);
 
-    // Indian Flag Pole
     this.addIndianFlag(chowkGroup, 0, 1.4, 0, 1.4);
-
     this.addBoxCollider(0, 0, 3, 3);
     this.scene.add(chowkGroup);
 
@@ -455,6 +437,82 @@ export class TownWorld {
     });
   }
 
+  // 9. Temple / Peace Environmental Sanctuary (Neutral Cultural Landmark)
+  createTemplePeaceSanctuary() {
+    const tx = 38, tz = 8;
+    const group = new THREE.Group();
+    group.position.set(tx, 0, tz);
+
+    // Stone base platform
+    const platform = new THREE.Mesh(new THREE.BoxGeometry(14, 0.6, 14), this.materials.concrete);
+    platform.position.y = 0.3;
+    group.add(platform);
+
+    // Inner Sanctum
+    const body = new THREE.Mesh(new THREE.BoxGeometry(8, 4.5, 8), this.materials.wallTempleSaffron);
+    body.position.y = 2.85;
+    body.castShadow = true;
+    group.add(body);
+    this.addBoxCollider(tx, tz, 9, 9);
+
+    // Traditional Shikhara / Dome pyramid
+    const shikhara = new THREE.Mesh(new THREE.ConeGeometry(5.2, 5.0, 4), this.materials.roofTile);
+    shikhara.position.y = 7.6;
+    shikhara.rotation.y = Math.PI / 4;
+    group.add(shikhara);
+
+    // Kalash on top
+    const kalash = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
+    kalash.position.y = 10.3;
+    group.add(kalash);
+
+    this.scene.add(group);
+
+    this.registerPOI({
+      id: 'poi_temple',
+      nameHi: 'शांति धाम / सार्वजनिक चबूतरा (Peace Sanctuary)',
+      descHi: 'सामुदायिक सद्भाव, बुजुर्गों की चौपाल, और शांति समिति का केंद्र।',
+      position: new THREE.Vector3(tx, 1, tz + 8),
+      type: 'CULTURE'
+    });
+  }
+
+  // 10. Public Community Park & Benches (वार्ड 12 वाटिका)
+  createPublicPark() {
+    const px = 18, pz = 32;
+    const group = new THREE.Group();
+    group.position.set(px, 0, pz);
+
+    // Grass lawn
+    const lawn = new THREE.Mesh(new THREE.PlaneGeometry(18, 16), this.materials.parkGrass);
+    lawn.rotation.x = -Math.PI / 2;
+    lawn.position.y = 0.03;
+    group.add(lawn);
+
+    // Park Pathway
+    const path = new THREE.Mesh(new THREE.PlaneGeometry(3, 16), this.materials.sidewalk);
+    path.rotation.x = -Math.PI / 2;
+    path.position.y = 0.035;
+    group.add(path);
+
+    // Park Benches
+    [-4, 4].forEach(bx => {
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.45, 0.8), this.materials.trunk);
+      bench.position.set(bx, 0.25, 0);
+      group.add(bench);
+    });
+
+    this.scene.add(group);
+
+    this.registerPOI({
+      id: 'poi_park',
+      nameHi: 'गांधी वाटिका / जन-पार्क (Public Park)',
+      descHi: 'युवाओं और नागरिकों से अनौपचारिक जनसंपर्क व संवाद का हरा-भरा स्थान।',
+      position: new THREE.Vector3(px, 1, pz),
+      type: 'PARK'
+    });
+  }
+
   addIndianFlag(parent, x, y, z, scale = 1.0) {
     const flagGroup = new THREE.Group();
     flagGroup.position.set(x, y, z);
@@ -464,12 +522,10 @@ export class TownWorld {
     pole.position.y = 4;
     flagGroup.add(pole);
 
-    // Saffron strip
     const saff = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.4), new THREE.MeshBasicMaterial({ color: 0xff9933, side: THREE.DoubleSide }));
     saff.position.set(1.2, 7.6, 0);
     flagGroup.add(saff);
 
-    // White strip with Ashoka Chakra blue spot
     const wht = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.4), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
     wht.position.set(1.2, 7.2, 0);
     flagGroup.add(wht);
@@ -478,7 +534,6 @@ export class TownWorld {
     chakra.position.set(1.2, 7.2, 0.01);
     flagGroup.add(chakra);
 
-    // Green strip
     const grn = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.4), new THREE.MeshBasicMaterial({ color: 0x138808, side: THREE.DoubleSide }));
     grn.position.set(1.2, 6.8, 0);
     flagGroup.add(grn);
@@ -489,21 +544,19 @@ export class TownWorld {
   createTreesAndStreetlights() {
     const foliageGroup = new THREE.Group();
 
-    // Trees along roads
     const treeCoords = [
       { x: -11, z: -25 }, { x: -11, z: -45 }, { x: -11, z: 25 }, { x: -11, z: 45 },
       { x: 11, z: -25 }, { x: 11, z: -45 }, { x: 11, z: 25 }, { x: 11, z: 45 },
-      { x: -28, z: 11 }, { x: -50, z: 11 }, { x: 28, z: 11 }, { x: 50, z: 11 }
+      { x: -28, z: 11 }, { x: -50, z: 11 }, { x: 28, z: 11 }, { x: 50, z: 11 },
+      { x: 12, z: 32 }, { x: 24, z: 32 }
     ];
 
     treeCoords.forEach(pos => {
-      // Tree trunk
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 3.5), this.materials.trunk);
       trunk.position.set(pos.x, 1.75, pos.z);
       trunk.castShadow = true;
       foliageGroup.add(trunk);
 
-      // Lush leafy crown
       const crown = new THREE.Mesh(new THREE.DodecahedronGeometry(2.2), this.materials.leaves);
       crown.position.set(pos.x, 4.5, pos.z);
       crown.castShadow = true;
@@ -512,10 +565,10 @@ export class TownWorld {
       this.addBoxCollider(pos.x, pos.z, 1.2, 1.2);
     });
 
-    // Streetlights (Simple mobile-optimized lamp posts)
     const lampCoords = [
       { x: -9.5, z: -15 }, { x: -9.5, z: 15 },
-      { x: 9.5, z: -15 }, { x: 9.5, z: 15 }
+      { x: 9.5, z: -15 }, { x: 9.5, z: 15 },
+      { x: -9.5, z: 35 }, { x: 9.5, z: 35 }
     ];
 
     lampCoords.forEach(lp => {
@@ -559,14 +612,13 @@ export class TownWorld {
         return true;
       }
     }
-    // District border collision (boundaries of Ward 12)
     if (Math.abs(nextX) > 75 || Math.abs(nextZ) > 75) {
       return true;
     }
     return false;
   }
 
-  getNearbyPOI(x, z, maxDist = 3.5) {
+  getNearbyPOI(x, z, maxDist = 3.8) {
     for (const poi of this.interactivePOIs) {
       const dist = Math.hypot(x - poi.position.x, z - poi.position.z);
       if (dist <= maxDist) {

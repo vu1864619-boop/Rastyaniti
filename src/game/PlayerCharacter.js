@@ -1,4 +1,4 @@
-// 3D Avatar Generator and Controller for Player and Indian NPCs
+// 3D Realistic Character Model with customizable face, hair, Indian attire progression, and accessories
 import * as THREE from 'three';
 import { sound } from '../systems/SoundFX.js';
 
@@ -7,10 +7,15 @@ export class CharacterModel {
     const {
       skinColor = '#dca180',
       hairColor = '#1a1a1a',
+      hairStyle = 'modern', // 'modern', 'traditional', 'cap'
       shirtColor = '#f8fafc',
       pantsColor = '#1e293b',
       sashColor = '#ff9933',
       hasSash = true,
+      hasGlasses = false,
+      hasNehruJacket = false,
+      jacketColor = '#78350f',
+      hasGandhiCap = false,
       scale = 1.0
     } = options;
 
@@ -20,49 +25,104 @@ export class CharacterModel {
     const hairMat = new THREE.MeshLambertMaterial({ color: hairColor });
     const shirtMat = new THREE.MeshLambertMaterial({ color: shirtColor });
     const pantsMat = new THREE.MeshLambertMaterial({ color: pantsColor });
-    const shoeMat = new THREE.MeshLambertMaterial({ color: 0x332211 });
+    const shoeMat = new THREE.MeshLambertMaterial({ color: 0x271c19 });
     const sashMat = new THREE.MeshLambertMaterial({ color: sashColor });
+    const jacketMat = new THREE.MeshLambertMaterial({ color: jacketColor });
+    const capMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const darkDetail = new THREE.MeshBasicMaterial({ color: 0x111827 });
+    const goldDetail = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
 
-    // Torso / Kurta
-    const torsoGeo = new THREE.BoxGeometry(0.7, 0.9, 0.4);
+    // 1. Torso & Traditional Indian Kurta
+    const torsoGeo = new THREE.BoxGeometry(0.72, 0.92, 0.42);
     const torso = new THREE.Mesh(torsoGeo, shirtMat);
-    torso.position.y = 1.25;
+    torso.position.y = 1.26;
     torso.castShadow = true;
     group.add(torso);
 
-    // Kurta Lower flare (traditional Indian long kurta hem)
-    const kurtaLowerGeo = new THREE.BoxGeometry(0.72, 0.4, 0.42);
+    // Kurta flared lower skirt (authentic Indian silhouette)
+    const kurtaLowerGeo = new THREE.BoxGeometry(0.74, 0.45, 0.44);
     const kurtaLower = new THREE.Mesh(kurtaLowerGeo, shirtMat);
     kurtaLower.position.y = 0.65;
     kurtaLower.castShadow = true;
     group.add(kurtaLower);
 
-    // Head
-    const headGeo = new THREE.BoxGeometry(0.42, 0.46, 0.42);
+    // Nehru / Modi Political Waistcoat Jacket (Unlocked with political rank)
+    if (hasNehruJacket) {
+      const jacketGeo = new THREE.BoxGeometry(0.76, 0.94, 0.46);
+      const jacket = new THREE.Mesh(jacketGeo, jacketMat);
+      jacket.position.y = 1.26;
+      jacket.castShadow = true;
+      group.add(jacket);
+
+      // Brass buttons
+      for (let by = 0.95; by <= 1.55; by += 0.15) {
+        const btn = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.48), goldDetail);
+        btn.position.y = by;
+        group.add(btn);
+      }
+    }
+
+    // 2. Head & Detailed Facial Features
+    const headGeo = new THREE.BoxGeometry(0.44, 0.48, 0.44);
     const head = new THREE.Mesh(headGeo, skinMat);
-    head.position.y = 1.95;
+    head.position.y = 1.96;
     head.castShadow = true;
     group.add(head);
 
-    // Hair
-    const hairGeo = new THREE.BoxGeometry(0.46, 0.22, 0.46);
-    const hair = new THREE.Mesh(hairGeo, hairMat);
-    hair.position.set(0, 2.15, 0);
-    group.add(hair);
+    // Eyes
+    const eyeGeo = new THREE.BoxGeometry(0.08, 0.04, 0.02);
+    const eyeL = new THREE.Mesh(eyeGeo, darkDetail);
+    eyeL.position.set(0.12, 1.98, 0.23);
+    const eyeR = new THREE.Mesh(eyeGeo, darkDetail);
+    eyeR.position.set(-0.12, 1.98, 0.23);
+    group.add(eyeL, eyeR);
 
-    // Political stole / Gamchha / Angavastram (Iconic Indian political attire)
+    // Eyebrows / Tilak
+    const tilak = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.09, 0.02), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+    tilak.position.set(0, 2.05, 0.23);
+    group.add(tilak);
+
+    // Mustache option for Indian statesman look
+    const stache = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.04, 0.02), darkDetail);
+    stache.position.set(0, 1.86, 0.23);
+    group.add(stache);
+
+    // Spectacles / Glasses
+    if (hasGlasses) {
+      const glassesFrame = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.08, 0.04), darkDetail);
+      glassesFrame.position.set(0, 1.98, 0.24);
+      group.add(glassesFrame);
+    }
+
+    // Hair Style / Cap
+    if (hasGandhiCap || hairStyle === 'cap') {
+      // Iconic Gandhi / Indian National Topi
+      const capGeo = new THREE.BoxGeometry(0.46, 0.16, 0.48);
+      const cap = new THREE.Mesh(capGeo, capMat);
+      cap.position.set(0, 2.24, 0);
+      group.add(cap);
+    } else {
+      const hairGeo = new THREE.BoxGeometry(0.48, 0.20, 0.48);
+      const hair = new THREE.Mesh(hairGeo, hairMat);
+      hair.position.set(0, 2.18, 0);
+      group.add(hair);
+    }
+
+    // 3. Political stole / Angavastram / Gamchha
     if (hasSash) {
-      const sashGeo = new THREE.BoxGeometry(0.74, 0.95, 0.44);
+      const sashGeo = new THREE.BoxGeometry(0.76, 0.98, 0.46);
       const sash = new THREE.Mesh(sashGeo, sashMat);
       sash.position.y = 1.25;
       group.add(sash);
     }
 
+    // 4. Limbs Rigging
     // Left Arm
     const leftArmGroup = new THREE.Group();
-    leftArmGroup.position.set(0.45, 1.6, 0);
+    leftArmGroup.position.set(0.46, 1.62, 0);
     const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), shirtMat);
     leftArm.position.y = -0.35;
+    leftArm.castShadow = true;
     leftArmGroup.add(leftArm);
     const leftHand = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.2, 0.18), skinMat);
     leftHand.position.y = -0.75;
@@ -71,33 +131,36 @@ export class CharacterModel {
 
     // Right Arm
     const rightArmGroup = new THREE.Group();
-    rightArmGroup.position.set(-0.45, 1.6, 0);
+    rightArmGroup.position.set(-0.46, 1.62, 0);
     const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), shirtMat);
     rightArm.position.y = -0.35;
+    rightArm.castShadow = true;
     rightArmGroup.add(rightArm);
     const rightHand = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.2, 0.18), skinMat);
     rightHand.position.y = -0.75;
     rightArmGroup.add(rightHand);
     group.add(rightArmGroup);
 
-    // Left Leg / Pyjama
+    // Left Leg
     const leftLegGroup = new THREE.Group();
     leftLegGroup.position.set(0.2, 0.65, 0);
     const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.65, 0.24), pantsMat);
     leftLeg.position.y = -0.32;
+    leftLeg.castShadow = true;
     leftLegGroup.add(leftLeg);
-    const leftShoe = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.15, 0.38), shoeMat);
+    const leftShoe = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.14, 0.40), shoeMat);
     leftShoe.position.set(0, -0.68, 0.06);
     leftLegGroup.add(leftShoe);
     group.add(leftLegGroup);
 
-    // Right Leg / Pyjama
+    // Right Leg
     const rightLegGroup = new THREE.Group();
     rightLegGroup.position.set(-0.2, 0.65, 0);
     const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.65, 0.24), pantsMat);
     rightLeg.position.y = -0.32;
+    rightLeg.castShadow = true;
     rightLegGroup.add(rightLeg);
-    const rightShoe = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.15, 0.38), shoeMat);
+    const rightShoe = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.14, 0.40), shoeMat);
     rightShoe.position.set(0, -0.68, 0.06);
     rightLegGroup.add(rightShoe);
     group.add(rightLegGroup);
@@ -119,7 +182,6 @@ export class PlayerCharacter {
     this.scene = scene;
     this.position = new THREE.Vector3(0, 0, 15);
     this.rotation = 0;
-    this.velocity = new THREE.Vector3();
     this.speed = 9.0;
     this.walkCycle = 0;
     this.isMoving = false;
@@ -136,13 +198,23 @@ export class PlayerCharacter {
     }
 
     this.customData = customData;
+    // Rank-based appearance upgrades
+    const rankIdx = customData.rankIndex || 0;
+    const hasNehruJacket = rankIdx >= 3; // Ward Councillor and above wears Nehru jacket
+    const hasGandhiCap = rankIdx >= 2;   // Party worker and above wears topi/gamchha
+    const hasGlasses = rankIdx >= 4;     // MLA / Senior leader spectacles
+
     this.avatar = CharacterModel.createAvatarMesh({
       skinColor: customData.skinColor || '#dca180',
       hairColor: customData.hairColor || '#1a1a1a',
+      hairStyle: customData.hairStyle || 'modern',
       shirtColor: customData.shirtColor || '#f8fafc',
       pantsColor: customData.pantsColor || '#1e293b',
       sashColor: customData.sashColor || '#ff9933',
-      hasSash: true
+      hasSash: true,
+      hasNehruJacket,
+      hasGandhiCap,
+      hasGlasses
     });
 
     this.avatar.mesh.position.copy(this.position);
@@ -170,11 +242,9 @@ export class PlayerCharacter {
     this.isMoving = moveMag > 0.1;
 
     if (this.isMoving) {
-      // Normalize vector
       const normX = moveX / (moveMag || 1);
       const normZ = moveZ / (moveMag || 1);
 
-      // Camera relative movement
       const forwardAngle = input.cameraYaw || 0;
       const cos = Math.cos(forwardAngle);
       const sin = Math.sin(forwardAngle);
@@ -183,14 +253,12 @@ export class PlayerCharacter {
       const worldZ = normX * sin + normZ * cos;
 
       const targetAngle = Math.atan2(worldX, worldZ);
-      // Smooth player yaw
       let angleDiff = targetAngle - this.rotation;
       while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
       while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
       this.rotation += angleDiff * Math.min(1.0, delta * 12);
       this.avatar.mesh.rotation.y = this.rotation;
 
-      // Predict next step with world collision
       const stepDist = this.speed * delta * Math.min(1.0, moveMag);
       const nextX = this.position.x + worldX * stepDist;
       const nextZ = this.position.z + worldZ * stepDist;
@@ -202,7 +270,6 @@ export class PlayerCharacter {
         this.position.z = nextZ;
       }
 
-      // Animate limb swing
       this.walkCycle += delta * 10;
       const swing = Math.sin(this.walkCycle) * 0.6;
       this.avatar.leftArmGroup.rotation.x = -swing;
@@ -210,14 +277,12 @@ export class PlayerCharacter {
       this.avatar.leftLegGroup.rotation.x = swing;
       this.avatar.rightLegGroup.rotation.x = -swing;
 
-      // Footstep sound interval
       this.stepTimer += delta;
       if (this.stepTimer > 0.35) {
         sound.playFootstep();
         this.stepTimer = 0;
       }
     } else {
-      // Idle pose smooth reset
       this.avatar.leftArmGroup.rotation.x *= 0.8;
       this.avatar.rightArmGroup.rotation.x *= 0.8;
       this.avatar.leftLegGroup.rotation.x *= 0.8;
@@ -225,7 +290,6 @@ export class PlayerCharacter {
       this.walkCycle = 0;
     }
 
-    // Jump / Gravity
     if (input.jump && this.isGrounded) {
       this.verticalVelocity = 6.0;
       this.isGrounded = false;

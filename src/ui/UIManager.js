@@ -1,7 +1,8 @@
-// Mobile UI, Character Creator, HUD, Modal Menus, and Dialogue Overlays
+// Upgraded Mobile UI with Life Simulation Jobs, In-World Rallies, Governance Office, and Hindi HUD
 import { gameState, BACKGROUNDS, RANKS } from '../systems/GameState.js';
 import { missionSystem } from '../systems/MissionSystem.js';
 import { PoliticalCampaignSystem, CAMPAIGN_ACTIONS } from '../systems/PoliticalSystem.js';
+import { LifeSimulationSystem, LIFE_JOBS, DIRECT_CITIZEN_AIDS } from '../systems/LifeSimulationSystem.js';
 import { sound } from '../systems/SoundFX.js';
 
 export class UIManager {
@@ -28,16 +29,20 @@ export class UIManager {
         </div>
 
         <div class="hud-stats-group">
-          <div class="stat-pill money-pill">
+          <div class="stat-pill money-pill" title="धन">
             <i class="fa-solid fa-indian-rupee-sign"></i>
             <span id="hud-money">${gameState.player.money.toLocaleString('en-IN')}</span>
           </div>
-          <div class="stat-pill rep-pill">
-            <i class="fa-solid fa-star"></i>
+          <div class="stat-pill energy-pill" title="ऊर्जा">
+            <i class="fa-solid fa-bolt text-yellow"></i>
+            <span id="hud-energy">${gameState.player.energy}%</span>
+          </div>
+          <div class="stat-pill rep-pill" title="प्रतिष्ठा">
+            <i class="fa-solid fa-star text-blue"></i>
             <span id="hud-rep">${gameState.player.reputation}</span>
           </div>
-          <div class="stat-pill time-pill">
-            <i class="fa-solid fa-clock"></i>
+          <div class="stat-pill time-pill" title="समय">
+            <i class="fa-solid fa-clock text-saffron"></i>
             <span id="hud-time">दिन ${gameState.time.day} • ${gameState.time.phase}</span>
           </div>
         </div>
@@ -45,7 +50,11 @@ export class UIManager {
 
       <!-- Quick Action Buttons Top Right -->
       <div class="hud-quick-nav">
-        <button id="nav-btn-missions" class="hud-nav-btn" title="मिशन">
+        <button id="nav-btn-life" class="hud-nav-btn" title="दैनिक जीवन व आजीविका">
+          <i class="fa-solid fa-briefcase"></i>
+          <span>आजीविका</span>
+        </button>
+        <button id="nav-btn-missions" class="hud-nav-btn" title="नागरिक मिशन">
           <i class="fa-solid fa-list-check"></i>
           <span>मिशन</span>
         </button>
@@ -61,6 +70,12 @@ export class UIManager {
           <i class="fa-solid fa-user-pen"></i>
           <span>चरित्र</span>
         </button>
+      </div>
+
+      <!-- Next Goal Ticker / Notification -->
+      <div class="hud-goal-banner" id="hud-goal-banner">
+        <i class="fa-solid fa-compass text-gold"></i>
+        <span id="hud-goal-text">लक्ष्य: मोहल्ले में लोगों से मिलें, आजीविका कमाएं और प्रतिष्ठा बढ़ाएं।</span>
       </div>
 
       <!-- Interaction Toast / Prompt -->
@@ -88,6 +103,7 @@ export class UIManager {
   }
 
   bindHUDEvents() {
+    document.getElementById('nav-btn-life').onclick = () => this.openModal('LIFE');
     document.getElementById('nav-btn-missions').onclick = () => this.openModal('MISSIONS');
     document.getElementById('nav-btn-campaign').onclick = () => this.openModal('CAMPAIGN');
     document.getElementById('nav-btn-gov').onclick = () => this.openModal('GOVERNANCE');
@@ -103,8 +119,20 @@ export class UIManager {
     document.getElementById('hud-player-name').innerText = gameState.player.name;
     document.getElementById('hud-player-rank').innerText = gameState.getCurrentRank().hi;
     document.getElementById('hud-money').innerText = gameState.player.money.toLocaleString('en-IN');
+    document.getElementById('hud-energy').innerText = `${gameState.player.energy}%`;
     document.getElementById('hud-rep').innerText = gameState.player.reputation;
     document.getElementById('hud-time').innerText = `दिन ${gameState.time.day} • ${gameState.time.phase}`;
+
+    const goalEl = document.getElementById('hud-goal-text');
+    if (gameState.player.rankIndex === 0) {
+      goalEl.innerText = 'लक्ष्य: आजीविका कमाएं, चाय की दुकान व बाजार में नागरिकों की मदद कर 100 प्रतिष्ठा प्राप्त करें।';
+    } else if (gameState.player.rankIndex === 1) {
+      goalEl.innerText = 'लक्ष्य: समाजसेवी के रूप में प्राथमिक स्कूल व सड़क मरम्मत मिशन पूर्ण करें और पार्टी से जुड़ें।';
+    } else if (gameState.player.rankIndex === 2) {
+      goalEl.innerText = 'लक्ष्य: पार्टी कार्यकर्ता के रूप में तिरंगा चौक पर जनसभा करें और पार्षद चुनाव की तैयारी करें।';
+    } else {
+      goalEl.innerText = `वर्तमान दायित्व: ${gameState.getCurrentRank().hi}। नगर पालिका में विकास योजनाएं स्वीकृत करें।`;
+    }
   }
 
   showInteractionPrompt(text) {
@@ -173,7 +201,67 @@ export class UIManager {
     const titleEl = document.getElementById('modal-title');
     const bodyEl = document.getElementById('modal-body');
 
-    if (type === 'MISSIONS') {
+    if (type === 'LIFE') {
+      titleEl.innerText = '💼 दैनिक आजीविका एवं जन-कल्याण (Daily Life & Earnings)';
+      bodyEl.innerHTML = `
+        <div class="modal-section-title">दैनिक रोजगार व आजीविका कार्य</div>
+        <div class="jobs-list">
+          ${LIFE_JOBS.map(j => `
+            <div class="job-card">
+              <div class="job-header">
+                <span class="job-title">${j.titleHi}</span>
+                <span class="income-badge">+₹${j.income}</span>
+              </div>
+              <p class="job-desc">${j.desc}</p>
+              <div class="job-meta">
+                <span>ऊर्जा खपत: ${j.energyCost}⚡</span>
+                <span>समय: ${j.timeMinutes / 60} घंटे</span>
+                ${j.repGain ? `<span class="text-green">+${j.repGain} प्रतिष्ठा</span>` : ''}
+              </div>
+              <button class="action-btn execute-job-btn" data-id="${j.id}">कार्य करें (Work)</button>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="modal-section-title mt-4">सीधी नागरिक सहायता (Direct Citizen Aid)</div>
+        <div class="aid-list">
+          ${DIRECT_CITIZEN_AIDS.map(a => `
+            <div class="aid-card">
+              <div class="aid-header">
+                <span class="aid-title">${a.titleHi}</span>
+                <span class="cost-badge">₹${a.cost}</span>
+              </div>
+              <p class="aid-desc">${a.desc}</p>
+              <div class="aid-meta">
+                <span>प्रतिष्ठा: +${a.repGain}</span>
+                <span>जनता विश्वास: +${a.trustBoost}%</span>
+              </div>
+              <button class="action-btn execute-aid-btn" data-id="${a.id}">सहायता प्रदान करें (Help)</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      bodyEl.querySelectorAll('.execute-job-btn').forEach(btn => {
+        btn.onclick = () => {
+          const jid = btn.getAttribute('data-id');
+          const res = LifeSimulationSystem.performJob(jid);
+          alert(res.msg);
+          this.updateHUD();
+          this.openModal('LIFE');
+        };
+      });
+
+      bodyEl.querySelectorAll('.execute-aid-btn').forEach(btn => {
+        btn.onclick = () => {
+          const aidId = btn.getAttribute('data-id');
+          const res = LifeSimulationSystem.provideDirectAid(aidId);
+          alert(res.msg);
+          this.updateHUD();
+          this.openModal('LIFE');
+        };
+      });
+    } else if (type === 'MISSIONS') {
       titleEl.innerText = '📋 समुदाय व वार्ड मिशन (Community Missions)';
       const active = missionSystem.getActiveMissions();
       const completed = missionSystem.getCompletedMissions();
@@ -247,7 +335,7 @@ export class UIManager {
           </div>
         </div>
 
-        <div class="modal-section-title mt-3">प्रचार गतिविधियां (Campaign Activities)</div>
+        <div class="modal-section-title mt-3">प्रचार गतिविधियां (3D World में दिखाई देंगी)</div>
         <div class="campaign-actions-grid">
           ${CAMPAIGN_ACTIONS.map(a => `
             <div class="campaign-action-card">
@@ -258,7 +346,7 @@ export class UIManager {
                 <span>ऊर्जा: ${a.energyCost}⚡</span>
                 <span class="text-green">+${a.supportBoost}% समर्थन</span>
               </div>
-              <button class="action-btn run-campaign-btn" data-id="${a.id}">आयोजन करें</button>
+              <button class="action-btn run-campaign-btn" data-id="${a.id}">आयोजन करें (Start)</button>
             </div>
           `).join('')}
         </div>
@@ -274,6 +362,9 @@ export class UIManager {
         btn.onclick = () => {
           const cid = btn.getAttribute('data-id');
           const res = PoliticalCampaignSystem.runCampaignAction(cid);
+          if (cid === 'chowk_rally') {
+            this.gameApp.events.spawnRallyCrowd(gameState.election.playerSupport);
+          }
           alert(res.msg);
           this.updateHUD();
           this.openModal('CAMPAIGN');
@@ -288,6 +379,9 @@ export class UIManager {
       };
     } else if (type === 'GOVERNANCE') {
       titleEl.innerText = '🏛️ नगर प्रशासन व विकास बोर्ड (Governance Dashboard)';
+      // Trigger visible 3D governance meeting in world
+      this.gameApp.events.spawnGovernanceMeetingScene();
+
       bodyEl.innerHTML = `
         <div class="budget-card">
           <div class="budget-title">नगर विकास बजट (Municipal Fund)</div>
@@ -342,7 +436,7 @@ export class UIManager {
             <p>रणनीति व संवाद (Negotiation): ${gameState.player.skills.negotiation}/100</p>
           </div>
           <div class="home-info mt-3">
-            <h4>निवास:</h4>
+            <h4>निवास व क्षेत्र:</h4>
             <p>${gameState.player.currentDistrict}</p>
           </div>
         </div>
@@ -370,13 +464,22 @@ export class UIManager {
         </div>
 
         <div class="form-group">
-          <label>पारिवारिक व आर्थिक पृष्ठभूमि (Starting Background):</label>
+          <label>प्रारंभिक पृष्ठभूमि (Starting Background):</label>
           <select id="cc-background" class="form-select">
             ${BACKGROUNDS.map(b => `
               <option value="${b.id}" ${b.id === gameState.player.background ? 'selected' : ''}>
                 ${b.nameHi} - ₹${b.money.toLocaleString('en-IN')}
               </option>
             `).join('')}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>हेयरस्टाइल / टोपी (Hairstyle / Cap):</label>
+          <select id="cc-hair-style" class="form-select">
+            <option value="modern" ${gameState.player.hairStyle === 'modern' ? 'selected' : ''}>आधुनिक बाल (Modern Hair)</option>
+            <option value="traditional" ${gameState.player.hairStyle === 'traditional' ? 'selected' : ''}>पारंपरिक बाल (Traditional)</option>
+            <option value="cap" ${gameState.player.hairStyle === 'cap' ? 'selected' : ''}>गांधी टोपी (Gandhi Topi)</option>
           </select>
         </div>
 
@@ -401,7 +504,7 @@ export class UIManager {
           </div>
         </div>
 
-        <button type="submit" class="action-btn save-char-btn">सुरक्षित करें व खेल में लागू करें</button>
+        <button type="submit" class="action-btn save-char-btn">सुरक्षित करें व 3D में लागू करें</button>
       </form>
     `;
 
@@ -410,6 +513,7 @@ export class UIManager {
       const name = document.getElementById('cc-name').value.trim() || 'विक्रम शर्मा';
       const age = parseInt(document.getElementById('cc-age').value) || 25;
       const bgId = document.getElementById('cc-background').value;
+      const hairStyle = document.getElementById('cc-hair-style').value;
       const shirt = document.getElementById('cc-shirt').value;
       const sash = document.getElementById('cc-sash').value;
       const skin = document.getElementById('cc-skin').value;
@@ -417,6 +521,7 @@ export class UIManager {
       gameState.player.name = name;
       gameState.player.age = age;
       gameState.player.background = bgId;
+      gameState.player.hairStyle = hairStyle;
       gameState.player.shirtColor = shirt;
       gameState.player.sashColor = sash;
       gameState.player.skinColor = skin;
@@ -431,7 +536,7 @@ export class UIManager {
       this.updateHUD();
       sound.playMissionComplete();
       this.closeModal();
-      alert(`बधाई! आपका नागरिक चरित्र "${name}" सफलतापूर्वक तैयार हो गया है!`);
+      alert(`बधाई! आपका नागरिक चरित्र "${name}" सफलतापूर्वक 3D दुनिया में अपडेट हो गया है!`);
     };
   }
 
