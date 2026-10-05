@@ -1,13 +1,14 @@
 // Game State & Save System for RashtraNiti 3D
 export const RANKS = [
-  { id: 'CITIZEN', hi: 'आम नागरिक', en: 'Ordinary Citizen', reqRep: 0, perk: 'बुनियादी नागरिक अधिकार' },
-  { id: 'VOLUNTEER', hi: 'समाजसेवी / वालंटियर', en: 'Community Volunteer', reqRep: 100, perk: 'स्थानीय लोगों से संवाद' },
-  { id: 'PARTY_WORKER', hi: 'पार्टी कार्यकर्ता', en: 'Party Worker', reqRep: 300, perk: 'पर्चा वितरण व सभा' },
-  { id: 'WARD_COUNCILLOR', hi: 'वार्ड पार्षद (नगर सेवक)', en: 'Ward Councillor', reqRep: 700, perk: 'वार्ड विकास बजट नियंत्रण' },
-  { id: 'MLA', hi: 'विधायक (विधान सभा)', en: 'Member of Legislative Assembly (MLA)', reqRep: 1500, perk: 'राज्य निधि व जिला योजना' },
-  { id: 'CHIEF_MINISTER', hi: 'मुख्यमंत्री (CM)', en: 'Chief Minister', reqRep: 3500, perk: 'राज्य कैबिनेट व पुलिस प्रशासन' },
-  { id: 'MP', hi: 'सांसद (लोक सभा)', en: 'Member of Parliament (MP)', reqRep: 6000, perk: 'राष्ट्रीय संसदीय बहस' },
-  { id: 'PRIME_MINISTER', hi: 'प्रधानमंत्री (PM)', en: 'Prime Minister of India', reqRep: 10000, perk: 'राष्ट्रीय बजट, विदेश नीति व संपूर्ण शासन' }
+  { id: 'CITIZEN', hi: 'आम नागरिक', en: 'Citizen', reqRep: 0, reqSupport: 0, perk: 'बुनियादी नागरिक अधिकार' },
+  { id: 'SOCIAL_WORKER', hi: 'समाजसेवी', en: 'Social Worker', reqRep: 120, reqSupport: 15, perk: 'स्थानीय लोगों से संवाद व सेवा कार्य' },
+  { id: 'PARTY_WORKER', hi: 'पार्टी कार्यकर्ता', en: 'Party Worker', reqRep: 350, reqSupport: 25, perk: 'पर्चा वितरण व पार्टी सदस्यता' },
+  { id: 'LOCAL_CANDIDATE', hi: 'स्थानीय प्रत्याशी', en: 'Local Candidate', reqRep: 700, reqSupport: 35, perk: 'चुनावी नामांकन व जनसभा' },
+  { id: 'COUNCILLOR', hi: 'वार्ड पार्षद', en: 'Councillor', reqRep: 1200, reqSupport: 48, perk: 'वार्ड विकास बजट नियंत्रण' },
+  { id: 'MLA', hi: 'विधायक (विधान सभा)', en: 'MLA', reqRep: 2500, reqSupport: 58, perk: 'राज्य निधि व जिला योजना' },
+  { id: 'MP', hi: 'सांसद (लोक सभा)', en: 'MP', reqRep: 5000, reqSupport: 70, perk: 'राष्ट्रीय संसदीय बहस' },
+  { id: 'NATIONAL_LEADER', hi: 'राष्ट्रीय नेतृत्व / मुख्यमंत्री', en: 'National Leader / CM', reqRep: 8500, reqSupport: 80, perk: 'राज्य कैबिनेट व राष्ट्रीय गठबंधन' },
+  { id: 'PRIME_MINISTER', hi: 'प्रधानमंत्री (PM)', en: 'Prime Minister', reqRep: 12000, reqSupport: 90, perk: 'राष्ट्रीय बजट, विदेश नीति व संपूर्ण शासन' }
 ];
 
 export const BACKGROUNDS = [
@@ -188,12 +189,21 @@ export class GameState {
     this.save();
   }
 
+  addPublicSupport(amount) {
+    this.election.playerSupport = Math.max(0, Math.min(100, (this.election.playerSupport || 30) + amount));
+    this.checkRankPromotion();
+    this.save();
+  }
+
   checkRankPromotion() {
-    const currentRank = RANKS[this.player.rankIndex];
     const nextRank = RANKS[this.player.rankIndex + 1];
-    if (nextRank && this.player.reputation >= nextRank.reqRep) {
-      this.player.rankIndex++;
-      return nextRank;
+    if (nextRank) {
+      const repMet = this.player.reputation >= nextRank.reqRep;
+      const supportMet = (this.election.playerSupport || 0) >= (nextRank.reqSupport || 0);
+      if (repMet && supportMet) {
+        this.player.rankIndex++;
+        return nextRank;
+      }
     }
     return null;
   }

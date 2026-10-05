@@ -5,6 +5,7 @@ import { TownWorld } from './game/TownWorld.js';
 import { PlayerCharacter } from './game/PlayerCharacter.js';
 import { NPCManager } from './game/NPCManager.js';
 import { TrafficSystem } from './game/TrafficSystem.js';
+import { DrivableVehicleSystem } from './game/DrivableVehicleSystem.js';
 import { InWorldEventSystem } from './game/InWorldEventSystem.js';
 import { TouchController } from './ui/TouchController.js';
 import { UIManager } from './ui/UIManager.js';
@@ -24,6 +25,7 @@ export class RashtraNitiGame {
     this.initPlayer();
     this.initNPCs();
     this.initTraffic();
+    this.initDrivableVehicles();
     this.initEvents();
     this.initUI();
     this.initController();
@@ -88,6 +90,10 @@ export class RashtraNitiGame {
     this.traffic = new TrafficSystem(this.scene, this.world.colliders);
   }
 
+  initDrivableVehicles() {
+    this.drivableSystem = new DrivableVehicleSystem(this.scene, this.world);
+  }
+
   initEvents() {
     this.events = new InWorldEventSystem(this.scene);
   }
@@ -106,6 +112,24 @@ export class RashtraNitiGame {
   }
 
   handleInteract() {
+    // 1. Check if driving -> Exit vehicle
+    if (this.drivableSystem && this.drivableSystem.isDriving) {
+      this.drivableSystem.exitVehicle(this.player);
+      this.ui.showInteractionPrompt('वाहन से बाहर निकले');
+      return;
+    }
+
+    // 2. Check if near a drivable vehicle -> Enter vehicle
+    if (this.drivableSystem) {
+      const nearVeh = this.drivableSystem.getNearbyDrivable(this.player.position);
+      if (nearVeh) {
+        this.drivableSystem.enterVehicle(nearVeh.vehicle, this.player);
+        this.ui.showInteractionPrompt(`[कार्रवाई] ${nearVeh.vehicle.nameHi} चला रहे हैं (उतरने के लिए दबाएं)`);
+        return;
+      }
+    }
+
+    // 3. POIs
     const nearbyPOI = this.world.getNearbyPOI(this.player.position.x, this.player.position.z);
     if (nearbyPOI) {
       sound.playInteract();
@@ -125,6 +149,7 @@ export class RashtraNitiGame {
       return;
     }
 
+    // 4. NPCs
     const nearbyNPC = this.npcManager.getNearbyNPC(this.player.position);
     if (nearbyNPC) {
       this.ui.showDialogue(nearbyNPC.npc);
@@ -156,8 +181,9 @@ export class RashtraNitiGame {
   updateCamera(delta) {
     const yaw = this.touchController.input.cameraYaw || 0;
 
-    const camDist = 9.0;
-    const camHeight = 5.0;
+    const isDriving = this.drivableSystem && this.drivableSystem.isDriving;
+    const camDist = isDriving ? 13.0 : 9.0;
+    const camHeight = isDriving ? 6.5 : 5.0;
 
     const targetCamX = this.player.position.x + Math.sin(yaw) * camDist;
     const targetCamZ = this.player.position.z + Math.cos(yaw) * camDist;
@@ -169,7 +195,7 @@ export class RashtraNitiGame {
 
     const lookTarget = new THREE.Vector3(
       this.player.position.x,
-      this.player.position.y + 1.6,
+      this.player.position.y + (isDriving ? 1.2 : 1.6),
       this.player.position.z
     );
     this.currentLookTarget.lerp(lookTarget, Math.min(1.0, delta * 10));
@@ -177,6 +203,19 @@ export class RashtraNitiGame {
   }
 
   checkPrompts() {
+    if (this.drivableSystem && this.drivableSystem.isDriving) {
+      this.ui.showInteractionPrompt('[E / कार्रवाई] वाहन से बाहर उतरें');
+      return;
+    }
+
+    if (this.drivableSystem) {
+      const nearVeh = this.drivableSystem.getNearbyDrivable(this.player.position);
+      if (nearVeh) {
+        this.ui.showInteractionPrompt(`[E / कार्रवाई] ड्राइव करें: ${nearVeh.vehicle.nameHi}`);
+        return;
+      }
+    }
+
     const npcMatch = this.npcManager.getNearbyNPC(this.player.position);
     if (npcMatch) {
       this.ui.showInteractionPrompt(`[E / बात करें] ${npcMatch.npc.name}`);
@@ -197,7 +236,12 @@ export class RashtraNitiGame {
 
     const delta = Math.min(this.clock.getDelta(), 0.1);
 
-    this.player.update(delta, this.touchController.input, this.world);
+    if (this.drivableSystem && this.drivableSystem.isDriving) {
+      this.drivableSystem.update(delta, this.touchController.input, this.player);
+    } else {
+      this.player.update(delta, this.touchController.input, this.world);
+    }
+
     this.npcManager.update(delta, this.player.position);
     if (this.traffic) this.traffic.update(delta);
     if (this.events) this.events.update(delta);
