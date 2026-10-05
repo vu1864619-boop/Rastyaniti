@@ -50,18 +50,17 @@ jobs:
           name: Build-Failure-Log
           path: build_error.log
 
-      - name: 📤 Upload RashtraNiti 3D APK
-        if: success()
+      - name: 📤 Find and Upload RashtraNiti 3D APK
+        run: |
+          echo "Finding generated APKs..."
+          find . -name "*.apk" -ls
+          mkdir -p final_apk
+          cp $(find . -name "*.apk" | head -n 1) final_apk/RashtraNiti-3D-Debug.apk
+          ls -lh final_apk/
+
+      - name: 📦 Publish APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: RashtraNiti-3D-Android-APK
-          path: android/app/build/outputs/apk/debug/*.apk
+          path: final_apk/RashtraNiti-3D-Debug.apk
           retention-days: 30
-
-      - name: 📜 Output APK Info
-        if: success()
-        run: |
-          echo "============================================="
-          echo "  ✅ RashtraNiti 3D APK Generated Successfully!"
-          echo "============================================="
-          ls -lh android/app/build/outputs/apk/debug/*.apk
