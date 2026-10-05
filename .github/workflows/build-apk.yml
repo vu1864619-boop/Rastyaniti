@@ -41,26 +41,11 @@ jobs:
       - name: 🔨 Build Debug APK
         run: |
           cd android
-          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee ../build_error.log
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: 📤 Upload Build Logs on Failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Build-Failure-Log
-          path: build_error.log
-
-      - name: 📤 Find and Upload RashtraNiti 3D APK
-        run: |
-          echo "Finding generated APKs..."
-          find . -name "*.apk" -ls
-          mkdir -p final_apk
-          cp $(find . -name "*.apk" | head -n 1) final_apk/RashtraNiti-3D-Debug.apk
-          ls -lh final_apk/
-
-      - name: 📦 Publish APK Artifact
+      - name: 📦 Publish RashtraNiti 3D APK
         uses: actions/upload-artifact@v4
         with:
           name: RashtraNiti-3D-Android-APK
-          path: final_apk/RashtraNiti-3D-Debug.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
