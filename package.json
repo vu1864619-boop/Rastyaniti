@@ -1,0 +1,33 @@
+{
+  "name": "rashtraniti",
+  "version": "1.0.0",
+  "description": "> **“एक आम आदमी से प्रधानमंत्री तक”** *(From Common Citizen to Prime Minister)*",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vu1864619-boop/Rastyaniti.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/vu1864619-boop/Rastyaniti/issues"
+  },
+  "homepage": "https://github.com/vu1864619-boop/Rastyaniti#readme",
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "vite": "^8.3.2"
+  }
+}
