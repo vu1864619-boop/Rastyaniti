@@ -259,7 +259,8 @@ export class PlayerCharacter {
       this.rotation += angleDiff * Math.min(1.0, delta * 12);
       this.avatar.mesh.rotation.y = this.rotation;
 
-      const stepDist = this.speed * delta * Math.min(1.0, moveMag);
+      const speedMultiplier = input.isRunning ? 1.55 : 1.0;
+      const stepDist = this.speed * speedMultiplier * delta * Math.min(1.0, moveMag);
       const nextX = this.position.x + worldX * stepDist;
       const nextZ = this.position.z + worldZ * stepDist;
 
@@ -270,7 +271,7 @@ export class PlayerCharacter {
         this.position.z = nextZ;
       }
 
-      this.walkCycle += delta * 10;
+      this.walkCycle += delta * (input.isRunning ? 14 : 10);
       const swing = Math.sin(this.walkCycle) * 0.6;
       this.avatar.leftArmGroup.rotation.x = -swing;
       this.avatar.rightArmGroup.rotation.x = swing;
@@ -278,7 +279,8 @@ export class PlayerCharacter {
       this.avatar.rightLegGroup.rotation.x = -swing;
 
       this.stepTimer += delta;
-      if (this.stepTimer > 0.35) {
+      const stepInterval = input.isRunning ? 0.24 : 0.35;
+      if (this.stepTimer > stepInterval) {
         sound.playFootstep();
         this.stepTimer = 0;
       }

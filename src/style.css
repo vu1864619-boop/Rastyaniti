@@ -39,56 +39,127 @@ body, html {
   z-index: 1;
 }
 
-/* Virtual Joystick Zone */
+/* Virtual Joystick Zone - Bottom Left */
 #v-joystick-zone {
   position: absolute;
-  bottom: 25px;
+  bottom: 24px;
   left: 20px;
-  width: 160px;
-  height: 160px;
-  z-index: 50;
+  width: 150px;
+  height: 150px;
+  z-index: 60;
   pointer-events: auto;
+  touch-action: none;
 }
 
 #v-joystick-base {
-  display: none;
+  display: block;
   position: absolute;
-  width: 110px;
-  height: 110px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
-  background: rgba(15, 23, 42, 0.5);
-  border: 2px solid rgba(255, 153, 51, 0.6);
-  box-shadow: 0 0 15px rgba(255, 153, 51, 0.3);
+  background: radial-gradient(circle, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.95) 75%, rgba(15, 23, 42, 0.98) 100%);
+  border: 2px solid rgba(255, 153, 51, 0.85);
+  box-shadow: 0 0 20px rgba(255, 153, 51, 0.35), inset 0 0 15px rgba(0, 0, 0, 0.6);
+  user-select: none;
+  -webkit-user-select: none;
 }
+
+#v-joystick-base.joystick-active {
+  border-color: #ff9933;
+  box-shadow: 0 0 25px rgba(255, 153, 51, 0.6), inset 0 0 15px rgba(255, 153, 51, 0.2);
+}
+
+.joystick-guide-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 153, 51, 0.35);
+  pointer-events: none;
+}
+
+.joystick-arrows {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.j-arrow {
+  position: absolute;
+  color: rgba(255, 153, 51, 0.6);
+  font-size: 11px;
+}
+.j-arrow.up { top: 6px; left: 50%; transform: translateX(-50%); }
+.j-arrow.down { bottom: 6px; left: 50%; transform: translateX(-50%); }
+.j-arrow.left { left: 8px; top: 50%; transform: translateY(-50%); }
+.j-arrow.right { right: 8px; top: 50%; transform: translateY(-50%); }
 
 #v-joystick-thumb {
   position: absolute;
-  top: 30px;
-  left: 30px;
-  width: 50px;
-  height: 50px;
+  top: 50%;
+  left: 50%;
+  margin-top: -27px;
+  margin-left: -27px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
-  background: radial-gradient(circle, #ff9933, #e65100);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle at 35% 35%, #ffa726, #ff9933 60%, #e65100 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65), 0 0 10px rgba(255, 153, 51, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  pointer-events: none;
+  transform: translate(0px, 0px);
+  transition: transform 0.05s ease-out;
 }
 
-/* Mobile Action Buttons Zone */
+.joystick-label {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fde68a;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(255, 153, 51, 0.5);
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Mobile Action Buttons Zone - Bottom Right Grid */
 #action-buttons-zone {
   position: absolute;
-  bottom: 30px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
+  bottom: 24px;
+  right: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, 64px);
   gap: 12px;
-  z-index: 50;
+  z-index: 60;
   pointer-events: auto;
 }
 
 .game-action-btn {
-  width: 68px;
-  height: 68px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
   border: 2px solid var(--saffron);
   color: #fff;
   display: flex;
@@ -96,25 +167,43 @@ body, html {
   justify-content: center;
   align-items: center;
   gap: 2px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.65);
   cursor: pointer;
-  transition: transform 0.1s, background-color 0.1s;
+  touch-action: manipulation;
+  transition: transform 0.1s, background-color 0.1s, border-color 0.1s;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .game-action-btn i {
-  font-size: 20px;
+  font-size: 18px;
   color: var(--saffron);
 }
 
-.game-action-btn:active {
+.game-action-btn:active, .game-action-btn.active {
   transform: scale(0.92);
   background: var(--saffron);
+  border-color: #fff;
   color: #000;
 }
-.game-action-btn:active i {
+.game-action-btn:active i, .game-action-btn.active i {
   color: #000;
+}
+
+/* Touch Camera Look Zone hint */
+#touch-camera-hint {
+  position: absolute;
+  bottom: 170px;
+  right: 20px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(15, 23, 42, 0.5);
+  padding: 3px 8px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 45;
 }
 
 /* HUD Styling */
