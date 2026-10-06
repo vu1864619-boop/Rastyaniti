@@ -317,8 +317,10 @@ export class TouchController {
   }
 
   bindCameraEvents() {
-    const minPitch = -0.65; // ~ -37 degrees looking slightly upward towards player
-    const maxPitch = 1.05;  // ~ +60 degrees top-down overview
+    // Pitch limit: exactly +/-60 degrees (-1.05 to +1.05 radians)
+    // Prevents upside down flips while allowing full, comfortable up/down tilt
+    const minPitch = -1.05; // -60 degrees looking upward toward player
+    const maxPitch = 1.05;  // +60 degrees overhead perspective
     const yawSensitivity = 0.0055;
     const pitchSensitivity = 0.0045;
 
@@ -347,7 +349,7 @@ export class TouchController {
           // Drag left => rotate camera left; Drag right => rotate camera right
           this.input.cameraYaw += deltaX * yawSensitivity;
 
-          // Drag up => camera pitches down/up naturally; Drag down => camera pitches higher
+          // Drag up => camera tilts down; Drag down => camera tilts up
           this.input.cameraPitch += deltaY * pitchSensitivity;
           this.input.cameraPitch = Math.max(minPitch, Math.min(maxPitch, this.input.cameraPitch));
           break;

@@ -186,8 +186,8 @@ export class RashtraNitiGame {
     const baseDist = isDriving ? 13.0 : 8.5;
     const targetHeight = isDriving ? 1.2 : 1.6;
 
-    // Pitch angle clamped strictly between -0.65 (-37°) and +1.05 (+60°)
-    const clampedPitch = Math.max(-0.65, Math.min(1.05, pitch));
+    // Pitch angle clamped strictly between -1.05 (-60°) and +1.05 (+60°)
+    const clampedPitch = Math.max(-1.05, Math.min(1.05, pitch));
 
     // Spherical orbit calculation
     const cosPitch = Math.cos(clampedPitch);
