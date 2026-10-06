@@ -15,6 +15,7 @@ export class TouchController {
       joystickX: 0,
       joystickY: 0,
       cameraYaw: 0,
+      cameraPitch: 0.25, // Default pleasant third-person angle (~14 degrees)
       jump: false
     };
 
@@ -279,14 +280,53 @@ export class TouchController {
     });
   }
 
+  isPointInUI(clientX, clientY) {
+    // 1. Bottom-Left Joystick safe zone
+    if (clientX <= 190 && clientY >= window.innerHeight - 190) return true;
+
+    // 2. Bottom-Right Action Buttons safe zone
+    if (clientX >= window.innerWidth - 170 && clientY >= window.innerHeight - 180) return true;
+
+    // 3. Top HUD bar safe zone
+    if (clientY <= 70) return true;
+
+    // 4. Quick nav drawer if open
+    const drawer = document.getElementById('hud-quick-nav-drawer');
+    if (drawer && !drawer.classList.contains('hidden')) {
+      const rect = drawer.getBoundingClientRect();
+      if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+        return true;
+      }
+    }
+
+    // 5. Open dialog or modal
+    const dialogue = document.getElementById('dialogue-box');
+    if (dialogue && !dialogue.classList.contains('hidden')) {
+      const rect = dialogue.getBoundingClientRect();
+      if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+        return true;
+      }
+    }
+
+    const modal = document.getElementById('modal-overlay');
+    if (modal && !modal.classList.contains('hidden')) {
+      return true;
+    }
+
+    return false;
+  }
+
   bindCameraEvents() {
-    // 1. Mobile Touch Look on Right side of screen
+    const minPitch = -0.65; // ~ -37 degrees looking slightly upward towards player
+    const maxPitch = 1.05;  // ~ +60 degrees top-down overview
+    const yawSensitivity = 0.0055;
+    const pitchSensitivity = 0.0045;
+
+    // 1. Mobile Touch Look
     this.canvas.addEventListener('touchstart', (e) => {
       for (let i = 0; i < e.changedTouches.length; i++) {
         const touch = e.changedTouches[i];
-        // Allow camera drag from anywhere not in bottom-left joystick zone
-        const isOutsideJoystick = touch.clientX > 180 || touch.clientY < window.innerHeight - 180;
-        if (isOutsideJoystick && this.touchData.cameraTouchId === null) {
+        if (!this.isPointInUI(touch.clientX, touch.clientY) && this.touchData.cameraTouchId === null) {
           this.touchData.cameraTouchId = touch.identifier;
           this.touchData.lastCamX = touch.clientX;
           this.touchData.lastCamY = touch.clientY;
@@ -300,10 +340,16 @@ export class TouchController {
         const touch = e.touches[i];
         if (touch.identifier === this.touchData.cameraTouchId) {
           const deltaX = touch.clientX - this.touchData.lastCamX;
+          const deltaY = touch.clientY - this.touchData.lastCamY;
           this.touchData.lastCamX = touch.clientX;
           this.touchData.lastCamY = touch.clientY;
-          // Smooth 360 degree rotation
-          this.input.cameraYaw -= deltaX * 0.007;
+
+          // Drag left => rotate camera left; Drag right => rotate camera right
+          this.input.cameraYaw += deltaX * yawSensitivity;
+
+          // Drag up => camera pitches down/up naturally; Drag down => camera pitches higher
+          this.input.cameraPitch += deltaY * pitchSensitivity;
+          this.input.cameraPitch = Math.max(minPitch, Math.min(maxPitch, this.input.cameraPitch));
           break;
         }
       }
@@ -324,19 +370,29 @@ export class TouchController {
     // 2. Desktop Mouse Drag Look
     let isMouseLooking = false;
     let lastMouseX = 0;
+    let lastMouseY = 0;
 
     this.canvas.addEventListener('mousedown', (e) => {
-      if (e.clientX > 180 || e.clientY < window.innerHeight - 180) {
+      if (!this.isPointInUI(e.clientX, e.clientY)) {
         isMouseLooking = true;
         lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
       }
     });
 
     window.addEventListener('mousemove', (e) => {
       if (!isMouseLooking) return;
       const deltaX = e.clientX - lastMouseX;
+      const deltaY = e.clientY - lastMouseY;
       lastMouseX = e.clientX;
-      this.input.cameraYaw -= deltaX * 0.007;
+      lastMouseY = e.clientY;
+
+      // Drag left => rotate camera left; Drag right => rotate camera right
+      this.input.cameraYaw += deltaX * yawSensitivity;
+
+      // Drag up/down controls pitch
+      this.input.cameraPitch += deltaY * pitchSensitivity;
+      this.input.cameraPitch = Math.max(minPitch, Math.min(maxPitch, this.input.cameraPitch));
     });
 
     window.addEventListener('mouseup', () => {

@@ -180,25 +180,52 @@ export class RashtraNitiGame {
 
   updateCamera(delta) {
     const yaw = this.touchController.input.cameraYaw || 0;
+    const pitch = this.touchController.input.cameraPitch !== undefined ? this.touchController.input.cameraPitch : 0.25;
 
     const isDriving = this.drivableSystem && this.drivableSystem.isDriving;
-    const camDist = isDriving ? 13.0 : 9.0;
-    const camHeight = isDriving ? 6.5 : 5.0;
+    const baseDist = isDriving ? 13.0 : 8.5;
+    const targetHeight = isDriving ? 1.2 : 1.6;
 
-    const targetCamX = this.player.position.x + Math.sin(yaw) * camDist;
-    const targetCamZ = this.player.position.z + Math.cos(yaw) * camDist;
-    const targetCamY = this.player.position.y + camHeight;
+    // Pitch angle clamped strictly between -0.65 (-37°) and +1.05 (+60°)
+    const clampedPitch = Math.max(-0.65, Math.min(1.05, pitch));
 
-    this.camera.position.x += (targetCamX - this.camera.position.x) * Math.min(1.0, delta * 8);
-    this.camera.position.y += (targetCamY - this.camera.position.y) * Math.min(1.0, delta * 8);
-    this.camera.position.z += (targetCamZ - this.camera.position.z) * Math.min(1.0, delta * 8);
+    // Spherical orbit calculation
+    const cosPitch = Math.cos(clampedPitch);
+    const sinPitch = Math.sin(clampedPitch);
+
+    let desiredDist = baseDist;
+    const offsetX = Math.sin(yaw) * cosPitch;
+    const offsetZ = Math.cos(yaw) * cosPitch;
+    const offsetY = sinPitch;
+
+    // Camera Collision / Obstruction check with world colliders
+    // If buildings or obstacles block the view, smoothly bring camera closer
+    if (this.world && this.world.colliders) {
+      for (let testDist = baseDist; testDist >= 2.5; testDist -= 0.6) {
+        const testX = this.player.position.x + offsetX * testDist;
+        const testZ = this.player.position.z + offsetZ * testDist;
+        if (this.world.checkCollision(testX, testZ, 0.4)) {
+          desiredDist = Math.max(2.5, testDist - 0.5);
+        }
+      }
+    }
+
+    const targetCamX = this.player.position.x + offsetX * desiredDist;
+    const targetCamZ = this.player.position.z + offsetZ * desiredDist;
+    const targetCamY = Math.max(0.6, this.player.position.y + targetHeight + offsetY * desiredDist);
+
+    // Smooth lerp follow without sudden jitter
+    const followLerp = Math.min(1.0, delta * 9);
+    this.camera.position.x += (targetCamX - this.camera.position.x) * followLerp;
+    this.camera.position.y += (targetCamY - this.camera.position.y) * followLerp;
+    this.camera.position.z += (targetCamZ - this.camera.position.z) * followLerp;
 
     const lookTarget = new THREE.Vector3(
       this.player.position.x,
-      this.player.position.y + (isDriving ? 1.2 : 1.6),
+      this.player.position.y + targetHeight,
       this.player.position.z
     );
-    this.currentLookTarget.lerp(lookTarget, Math.min(1.0, delta * 10));
+    this.currentLookTarget.lerp(lookTarget, Math.min(1.0, delta * 12));
     this.camera.lookAt(this.currentLookTarget);
   }
 
