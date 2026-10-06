@@ -29,7 +29,8 @@ export class NPCManager {
           'राजनीति में जनसंपर्क ही सबसे बड़ा धन है। सुख-दुख में खड़े रहोगे तो संसद तक का रास्ता खुल जाएगा।',
           'चाय की दुकान पर रोजाना 200 लोग आते हैं, अगर आप कहें तो आपके पक्ष में माहौल बना दें!'
         ],
-        needText: 'बाजार में नियमित सफाई व पानी का टैंकर चाहिए।'
+        needText: 'बाजार में नियमित सफाई व पानी का टैंकर चाहिए।',
+        missionId: 'mission_cleanliness_drive'
       },
       // 2. Gupta Ji (Kirana Store / Trader President)
       {
@@ -44,7 +45,8 @@ export class NPCManager {
           'अगर हमारे बाजार में सोलर स्ट्रीट लाइट लग जाएं तो रात 10 बजे तक दुकानें खुल सकती हैं।',
           'व्यापारी वर्ग हमेशा विकास और सुरक्षा का साथ देता है।'
         ],
-        needText: 'बाजार में स्ट्रीट लाइट व सीसीटीवी कैमरे की मांग।'
+        needText: 'बाजार में स्ट्रीट लाइट व सीसीटीवी कैमरे की मांग।',
+        missionId: 'mission_broken_road'
       },
       // 3. Master Ji (Senior Teacher)
       {
@@ -59,7 +61,8 @@ export class NPCManager {
           'सच्चा जननेता वही है जो आने वाली पीढ़ी की शिक्षा और स्वास्थ्य पर बजट खर्च करे!',
           'विद्यालय में गर्मियों में पीने के शुद्ध पानी और पंखों की भारी किल्लत है। कृपया मदद करें।'
         ],
-        needText: 'प्राथमिक विद्यालय में वाटर कूलर और पंखों की आवश्यकता।'
+        needText: 'प्राथमिक विद्यालय में वाटर कूलर और पंखों की आवश्यकता।',
+        missionId: 'mission_school_aid'
       },
       // 4. Sub Inspector Rathore (Police)
       {
@@ -89,7 +92,8 @@ export class NPCManager {
           'हमें प्राथमिक स्वास्थ्य केंद्र पर आवश्यक जीवनरक्षक दवाओं की निरंतर आपूर्ति चाहिए।',
           'स्वच्छता और शुद्ध पेयजल से वार्ड की 80% मौसमी बीमारियां रोकी जा सकती हैं।'
         ],
-        needText: 'मुफ्त स्वास्थ्य जांच शिविर और जीवनरक्षक दवाओं का कोटा।'
+        needText: 'मुफ्त स्वास्थ्य जांच शिविर और जीवनरक्षक दवाओं का कोटा।',
+        missionId: 'mission_health_camp'
       },
       // 6. Babu Dinesh Chandra (Municipal Secretary)
       {
@@ -104,7 +108,8 @@ export class NPCManager {
           'वार्ड 12 में मुख्य सड़क निर्माण और नाली सफाई का प्रस्ताव पास होने की प्रतीक्षा में है।',
           'अगर आप विकास कार्यों की फाइलें स्वीकृत करवाएं तो सीधे जनता को लाभ मिलेगा।'
         ],
-        needText: 'वार्ड 12 नाली व सड़क विकास का मास्टर प्लान पास कराना।'
+        needText: 'वार्ड 12 नाली व सड़क विकास का मास्टर प्लान पास कराना।',
+        missionId: 'mission_ward_development_proposal'
       },
       // 7. Pandit Ramgopal Shastri (Sanctuary / Elder)
       {
@@ -213,6 +218,7 @@ export class NPCManager {
         dialogues: cfg.dialogues,
         dialogueIndex: 0,
         needText: cfg.needText,
+        missionId: cfg.missionId || null,
         mesh: avatar.mesh,
         armLeft: avatar.leftArmGroup,
         armRight: avatar.rightArmGroup,

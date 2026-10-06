@@ -103,8 +103,11 @@ export class UIManager {
           <span id="dialogue-need-text">समस्या...</span>
         </div>
         <div class="dialogue-actions" id="dialogue-actions">
+          <button id="dialogue-mission-btn" class="dialogue-btn mission-action-btn hidden">
+            <i class="fa-solid fa-clipboard-list"></i> मिशन शुरू करें
+          </button>
           <button id="dialogue-help-btn" class="dialogue-btn highlight-btn">
-            <i class="fa-solid fa-hand-holding-heart"></i> सहायता करें (+प्रतिष्ठा)
+            <i class="fa-solid fa-hand-holding-heart"></i> सहायता (+प्रतिष्ठा)
           </button>
           <button id="dialogue-next-btn" class="dialogue-btn primary-btn">अगली बात</button>
         </div>
@@ -211,6 +214,7 @@ export class UIManager {
     const contentEl = document.getElementById('dialogue-content');
     const needTextEl = document.getElementById('dialogue-need-text');
     const helpBtn = document.getElementById('dialogue-help-btn');
+    const missionBtn = document.getElementById('dialogue-mission-btn');
     const nextBtn = document.getElementById('dialogue-next-btn');
 
     nameEl.innerText = npc.name;
@@ -219,6 +223,26 @@ export class UIManager {
 
     if (needTextEl) {
       needTextEl.innerText = npc.needText || 'स्थानीय विकास व सहयोग की आवश्यकता।';
+    }
+
+    // Check if this NPC has an associated mission
+    if (missionBtn) {
+      if (npc.missionId) {
+        const matchingMission = missionSystem.missions.find(m => m.id === npc.missionId);
+        if (matchingMission && !matchingMission.isCompleted) {
+          missionBtn.classList.remove('hidden');
+          missionBtn.innerHTML = `<i class="fa-solid fa-list-check"></i> ${matchingMission.titleHi.substring(0, 16)}...`;
+          missionBtn.onclick = () => {
+            sound.playClick();
+            this.closeDialogue();
+            this.openModal('MISSIONS');
+          };
+        } else {
+          missionBtn.classList.add('hidden');
+        }
+      } else {
+        missionBtn.classList.add('hidden');
+      }
     }
 
     if (helpBtn) {

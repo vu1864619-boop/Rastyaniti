@@ -445,6 +445,11 @@ body, html {
   color: #fff;
 }
 
+.mission-action-btn {
+  background: #0284c7;
+  color: #fff;
+}
+
 .secondary-btn {
   background: #334155;
   color: #fff;

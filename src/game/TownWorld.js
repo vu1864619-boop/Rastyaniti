@@ -45,7 +45,17 @@ export class TownWorld {
       autoYellow: new THREE.MeshLambertMaterial({ color: 0xfacc15 }),
       autoGreen: new THREE.MeshLambertMaterial({ color: 0x16a34a }),
       tarpBlue: new THREE.MeshLambertMaterial({ color: 0x2563eb }),
-      metalLight: new THREE.MeshLambertMaterial({ color: 0x475569 })
+      metalLight: new THREE.MeshLambertMaterial({ color: 0x475569 }),
+
+      // Architectural & Environmental details
+      windowGlass: new THREE.MeshLambertMaterial({ color: 0x60a5fa }),
+      windowFrame: new THREE.MeshLambertMaterial({ color: 0x1e293b }),
+      doorWood: new THREE.MeshLambertMaterial({ color: 0x78350f }),
+      sintexBlack: new THREE.MeshLambertMaterial({ color: 0x171717 }),
+      solarBlue: new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }),
+      posterGold: new THREE.MeshBasicMaterial({ color: 0xf59e0b }),
+      brickTrim: new THREE.MeshLambertMaterial({ color: 0xb45309 }),
+      signWhite: new THREE.MeshLambertMaterial({ color: 0xffffff })
     };
   }
 
@@ -157,6 +167,22 @@ export class TownWorld {
     signBoard.position.set(0, 6.2, 8.2);
     group.add(signBoard);
 
+    // Windows and Entrance Door for Municipal Office
+    const door = new THREE.Mesh(new THREE.BoxGeometry(3.2, 4.2, 0.2), this.materials.doorWood);
+    door.position.set(0, 2.1, 8.05);
+    group.add(door);
+
+    [-6, 6].forEach(wx => {
+      const win = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.2, 0.2), this.materials.windowGlass);
+      win.position.set(wx, 3.8, 8.05);
+      group.add(win);
+    });
+
+    // Rooftop Sintex Water Tank
+    const tank = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 2.0, 12), this.materials.sintexBlack);
+    tank.position.set(-8, 8.8, -4);
+    group.add(tank);
+
     this.addIndianFlag(group, 0, 7.8, 0);
     this.scene.add(group);
 
@@ -180,6 +206,24 @@ export class TownWorld {
     bld.castShadow = true;
     group.add(bld);
     this.addBoxCollider(x, z, 22, 18);
+
+    // Hospital Windows
+    for (let hx = -7; hx <= 7; hx += 4.5) {
+      const hWin = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.6, 0.2), this.materials.windowGlass);
+      hWin.position.set(hx, 4.2, 9.05);
+      group.add(hWin);
+    }
+
+    // Glass Double Door
+    const hDoor = new THREE.Mesh(new THREE.BoxGeometry(3.6, 3.2, 0.2), this.materials.windowGlass);
+    hDoor.position.set(0, 1.6, 9.05);
+    group.add(hDoor);
+
+    // Rooftop Solar Panel array
+    const solar = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.2, 4.0), this.materials.solarBlue);
+    solar.position.set(-5, 6.8, -2);
+    solar.rotation.x = 0.15;
+    group.add(solar);
 
     // Red Cross emblem
     const crossV = new THREE.Mesh(new THREE.BoxGeometry(1, 3.5, 0.2), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
@@ -231,6 +275,18 @@ export class TownWorld {
     group.add(wing);
     this.addBoxCollider(x - 10, z + 4, 8, 12);
 
+    // Classroom Windows with Iron Grills
+    [-6, 6].forEach(sx => {
+      const win = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.8, 0.2), this.materials.windowGlass);
+      win.position.set(sx, 2.4, 5.05);
+      group.add(win);
+    });
+
+    // School Wooden Door
+    const schoolDoor = new THREE.Mesh(new THREE.BoxGeometry(2.2, 3.2, 0.2), this.materials.doorWood);
+    schoolDoor.position.set(0, 1.6, 5.05);
+    group.add(schoolDoor);
+
     const sloganWall = new THREE.Mesh(new THREE.BoxGeometry(10, 1.5, 0.2), this.materials.boardBlue);
     sloganWall.position.set(0, 3.8, 5.15);
     group.add(sloganWall);
@@ -263,12 +319,24 @@ export class TownWorld {
     group.add(bld);
     this.addBoxCollider(x, z, 18, 14);
 
+    // Police Red/Blue Sign
     const signR = new THREE.Mesh(new THREE.BoxGeometry(5, 1.2, 0.2), new THREE.MeshBasicMaterial({ color: 0xdc2626 }));
     signR.position.set(-2.5, 4.2, 7.15);
     const signB = new THREE.Mesh(new THREE.BoxGeometry(5, 1.2, 0.2), new THREE.MeshBasicMaterial({ color: 0x1e3a8a }));
     signB.position.set(2.5, 4.2, 7.15);
     group.add(signR, signB);
 
+    // Police Station Wooden Door
+    const polDoor = new THREE.Mesh(new THREE.BoxGeometry(2.4, 3.2, 0.2), this.materials.doorWood);
+    polDoor.position.set(0, 1.6, 7.05);
+    group.add(polDoor);
+
+    // Police Radio / Wireless Antenna Tower on Roof
+    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 6.0), this.materials.metalLight);
+    antenna.position.set(7, 8.2, -4);
+    group.add(antenna);
+
+    // Police Yellow/Black Barricades
     for (let bx = -4; bx <= 4; bx += 4) {
       const bar = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.2, 0.4), this.materials.autoYellow);
       bar.position.set(bx, 0.6, 10);
@@ -332,6 +400,22 @@ export class TownWorld {
     bench.position.set(cx, 0.25, cz + 2.5);
     shopsGroup.add(bench);
 
+    // Chai Tapri Kiosk details: Counter, Gas Stove, and Tea Kettle (केटली)
+    const counter = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.0, 1.2), this.materials.concrete);
+    counter.position.set(cx, 0.5, cz + 1.8);
+    shopsGroup.add(counter);
+
+    const kettle = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.35, 0.5), this.materials.metalLight);
+    kettle.position.set(cx + 0.8, 1.25, cz + 1.8);
+    shopsGroup.add(kettle);
+
+    // Kirana store grain sacks (बोरी)
+    [-17.5, -21.5].forEach(kx => {
+      const sack = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 1.0), this.materials.dirtGround);
+      sack.position.set(kx, 0.4, -8.6);
+      shopsGroup.add(sack);
+    });
+
     this.registerPOI({
       id: 'poi_chai_stall',
       nameHi: 'शर्मा जी की चाय की दुकान (Chai Tapri Hub)',
@@ -360,9 +444,25 @@ export class TownWorld {
     houseRoof.rotation.y = Math.PI / 4;
     resGroup.add(houseRoof);
 
+    // Front Door & Windows for Player House
+    const pDoor = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.8, 0.2), this.materials.doorWood);
+    pDoor.position.set(px, 1.4, pz + 4.55);
+    resGroup.add(pDoor);
+
+    [-3, 3].forEach(wx => {
+      const pWin = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.5, 0.2), this.materials.windowGlass);
+      pWin.position.set(px + wx, 2.4, pz + 4.55);
+      resGroup.add(pWin);
+    });
+
     const namePlate = new THREE.Mesh(new THREE.BoxGeometry(2, 0.7, 0.1), this.materials.boardSaffron);
     namePlate.position.set(px, 1.8, pz + 4.6);
     resGroup.add(namePlate);
+
+    // Water Tank for Player House
+    const pTank = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 1.4, 10), this.materials.sintexBlack);
+    pTank.position.set(px + 3, 6.2, pz - 2);
+    resGroup.add(pTank);
 
     this.registerPOI({
       id: 'poi_home',
